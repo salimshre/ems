@@ -1,125 +1,208 @@
 <?php
 session_start();
-require_once 'config/db.php';
+require_once __DIR__ . '/config/db.php';
 
+// ── ROUTER ────────────────────────────────────────────────
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
-if ($action === 'login') {
-    $email = trim($_POST['email'] ?? '');
+match ($action) {
+    'login'  => handleLogin(),
+    'signup' => handleSignup(),
+    'logout' => handleLogout(),
+    'check'  => handleCheckSession(),
+    default  => respond(false, 'Invalid action.')
+};
+
+// ══════════════════════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════════════════════
+function handleLogin() {
+    $email    = trim($_POST['email']    ?? '');
     $password = trim($_POST['password'] ?? '');
-    $role = trim($_POST['role'] ?? 'user');
-    
+    $role     = trim($_POST['role']     ?? 'user');
+
     if (!$email || !$password) {
-        echo json_encode(['success' => false, 'message' => 'Email and password required']);
-        exit;
+        respond(false, 'Email and password are required.');
     }
-    
+
     $conn = getConn();
-    
+
     if ($role === 'admin') {
-        $result = mysqli_query($conn, "SELECT admin_id, username, password, name FROM admin WHERE username = '$email'");
-        $user = mysqli_fetch_assoc($result);
-        
-        if ($user && $user['password'] === $password) {
-            $_SESSION['admin_id'] = $user['admin_id'];
-            $_SESSION['admin_name'] = $user['name'];
-            $_SESSION['role'] = 'admin';
-            echo json_encode(['success' => true, 'message' => 'Login successful', 'redirect' => '/codefeat/asset/pages/admin.html']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Invalid credentials']);
-        }
+        $stmt = mysqli_prepare($conn,
+            "SELECT admin_id AS id, username AS name, password AS hash, name AS full_name
+             FROM admin WHERE username = ? LIMIT 1");
+        mysqli_stmt_bind_param($stmt, 's', $email);
     } else {
-        $result = mysqli_query($conn, "SELECT user_id, name, email, password FROM users WHERE email = '$email'");
-        $user = mysqli_fetch_assoc($result);
-        
-        if ($user && $user['password'] === $password) {
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_email'] = $user['email'];
-            $_SESSION['role'] = 'user';
-            echo json_encode(['success' => true, 'message' => 'Login successful', 'redirect' => '/codefeat/asset/pages/student.html']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Invalid credentials']);
-        }
+        $stmt = mysqli_prepare($conn,
+            "SELECT user_id AS id, name, email, password AS hash
+             FROM users WHERE email = ? LIMIT 1");
+        mysqli_stmt_bind_param($stmt, 's', $email);
     }
-    mysqli_close($conn);
+
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row    = mysqli_fetch_assoc($result);
+
+    mysqli_stmt_close($stmt);
+
+    if (!$row) {
+        respond(false, 'No account found with those credentials.');
+    }
+
+    // Check password - support both hashed and plain text
+    $validPassword = false;
     
-} elseif ($action === 'signup') {
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+    // Try password_verify first (for hashed passwords)
+    if (password_verify($password, $row['hash'])) {
+        $validPassword = true;
+    }
+    // Fallback: check plain text (for admin without hash)
+    elseif ($row['hash'] === $password) {
+        $validPassword = true;
+    }
+
+    if (!$validPassword) {
+        respond(false, 'Incorrect password.');
+    }
+
+    // Store session
+    session_regenerate_id(true);
+    if ($role === 'admin') {
+        $_SESSION['admin_id']   = $row['id'];
+        $_SESSION['admin_name'] = $row['full_name'] ?? $row['name'];
+        $_SESSION['username']   = $row['name'];
+        $_SESSION['role']       = 'admin';
+        respond(true, 'Login successful.', [
+            'redirect' => '/codefeat/asset/pages/admin.html',
+            'user' => ['id' => $row['id'], 'name' => $row['full_name'] ?? $row['name'], 'role' => 'admin']
+        ]);
+    } else {
+        $_SESSION['user_id']   = $row['id'];
+        $_SESSION['user_name'] = $row['name'];
+        $_SESSION['user_email'] = $row['email'];
+        $_SESSION['role']      = 'user';
+        respond(true, 'Login successful.', [
+            'redirect' => '/codefeat/asset/pages/student.html',
+            'user' => ['id' => $row['id'], 'name' => $row['name'], 'email' => $row['email'], 'role' => 'user']
+        ]);
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+//  SIGNUP
+// ══════════════════════════════════════════════════════════
+function handleSignup() {
+    $name     = trim($_POST['name']     ?? '');
+    $email    = trim($_POST['email']    ?? '');
     $password = trim($_POST['password'] ?? '');
-    $role = trim($_POST['role'] ?? 'user');
-    
+    $role     = trim($_POST['role']     ?? 'user');
+
+    // ── Basic validation ──
     if (!$name || !$email || !$password) {
-        echo json_encode(['success' => false, 'message' => 'All fields required']);
-        exit;
+        respond(false, 'Name, email and password are required.');
     }
-    
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        respond(false, 'Invalid email address.');
+    }
+    if (strlen($password) < 6) {
+        respond(false, 'Password must be at least 6 characters.');
+    }
+
     $conn = getConn();
-    
+
     if ($role === 'admin') {
-        $check = mysqli_query($conn, "SELECT admin_id FROM admin WHERE username = '$email'");
-        if (mysqli_num_rows($check) > 0) {
-            echo json_encode(['success' => false, 'message' => 'Admin already exists']);
-            exit;
+        // ── Check duplicate admin username ──
+        $chk = mysqli_prepare($conn, "SELECT admin_id FROM admin WHERE username = ? LIMIT 1");
+        mysqli_stmt_bind_param($chk, 's', $email);
+        mysqli_stmt_execute($chk);
+        mysqli_stmt_store_result($chk);
+        if (mysqli_stmt_num_rows($chk) > 0) {
+            mysqli_stmt_close($chk);
+            respond(false, 'An admin account with that username already exists.');
         }
-        
-        $dept = $_POST['adminDept'] ?? '';
-        $contact = $_POST['adminContact'] ?? '';
-        $office = $_POST['officeLocation'] ?? '';
-        $code = $_POST['adminID'] ?? '';
-        
-        $sql = "INSERT INTO admin (username, password, name, department, contact, office_location, admin_code) 
-                VALUES ('$email', '$password', '$name', '$dept', '$contact', '$office', '$code')";
-        
-        if (mysqli_query($conn, $sql)) {
-            echo json_encode(['success' => true, 'message' => 'Admin created', 'redirect' => '/codefeat/asset/pages/login.html']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Registration failed']);
-        }
+        mysqli_stmt_close($chk);
+
+        $dept          = trim($_POST['adminDept']      ?? '');
+        $contact       = trim($_POST['adminContact']   ?? '');
+        $officeLocation = trim($_POST['officeLocation'] ?? '');
+        $adminID       = trim($_POST['adminID']        ?? '');
+
+        // Store password as plain text for admin (easier for testing)
+        $stmt = mysqli_prepare($conn,
+            "INSERT INTO admin (username, password, name, department, contact, office_location, admin_code)
+             VALUES (?, ?, ?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt, 'sssssss',
+            $email, $password, $name, $dept, $contact, $officeLocation, $adminID);
+
     } else {
-        $check = mysqli_query($conn, "SELECT user_id FROM users WHERE email = '$email'");
-        if (mysqli_num_rows($check) > 0) {
-            echo json_encode(['success' => false, 'message' => 'Email already registered']);
-            exit;
+        // ── Check duplicate user email ──
+        $chk = mysqli_prepare($conn, "SELECT user_id FROM users WHERE email = ? LIMIT 1");
+        mysqli_stmt_bind_param($chk, 's', $email);
+        mysqli_stmt_execute($chk);
+        mysqli_stmt_store_result($chk);
+        if (mysqli_stmt_num_rows($chk) > 0) {
+            mysqli_stmt_close($chk);
+            respond(false, 'Email is already registered.');
         }
-        
-        $contact = $_POST['contact'] ?? '';
-        $faculty = $_POST['faculty'] ?? '';
-        $semester = $_POST['semester'] ?? '';
-        $college = $_POST['college'] ?? '';
-        $university = $_POST['university'] ?? '';
-        $location = $_POST['location'] ?? '';
-        
-        $sql = "INSERT INTO users (name, email, password, contact, faculty, semester, college, university, location) 
-                VALUES ('$name', '$email', '$password', '$contact', '$faculty', '$semester', '$college', '$university', '$location')";
-        
-        if (mysqli_query($conn, $sql)) {
-            echo json_encode(['success' => true, 'message' => 'Account created', 'redirect' => '/codefeat/asset/pages/login.html']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Registration failed']);
-        }
+        mysqli_stmt_close($chk);
+
+        $contact    = trim($_POST['contact']    ?? '');
+        $faculty    = trim($_POST['faculty']    ?? '');
+        $semester   = trim($_POST['semester']   ?? '');
+        $college    = trim($_POST['college']    ?? '');
+        $university = trim($_POST['university'] ?? '');
+        $location   = trim($_POST['location']   ?? '');
+
+        // Hash password for users
+        $hash = password_hash($password, PASSWORD_BCRYPT);
+
+        $stmt = mysqli_prepare($conn,
+            "INSERT INTO users (name, email, password, contact, faculty, semester, college, university, location)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt, 'sssssssss',
+            $name, $email, $hash, $contact, $faculty, $semester, $college, $university, $location);
     }
-    mysqli_close($conn);
-    
-} elseif ($action === 'logout') {
+
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        respond(true, 'Account created successfully!', ['redirect' => '/codefeat/asset/pages/login.html']);
+    } else {
+        $err = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+        respond(false, 'Registration failed: ' . $err);
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+//  LOGOUT
+// ══════════════════════════════════════════════════════════
+function handleLogout() {
     session_destroy();
-    echo json_encode(['success' => true, 'message' => 'Logged out', 'redirect' => '/codefeat/asset/pages/login.html']);
-    
-} elseif ($action === 'check') {
+    respond(true, 'Logged out successfully', ['redirect' => '/codefeat/asset/pages/login.html']);
+}
+
+// ══════════════════════════════════════════════════════════
+//  CHECK SESSION
+// ══════════════════════════════════════════════════════════
+function handleCheckSession() {
     if (isset($_SESSION['role'])) {
-        echo json_encode([
-            'success' => true, 
+        respond(true, 'Session active', [
             'role' => $_SESSION['role'],
             'user' => [
                 'id' => $_SESSION['user_id'] ?? $_SESSION['admin_id'],
-                'name' => $_SESSION['user_name'] ?? $_SESSION['admin_name']
+                'name' => $_SESSION['user_name'] ?? $_SESSION['admin_name'],
+                'role' => $_SESSION['role']
             ]
         ]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Not logged in']);
+        respond(false, 'No active session');
     }
-} else {
-    echo json_encode(['success' => false, 'message' => 'Invalid action']);
+}
+
+// ── JSON response helper ───────────────────────────────────
+function respond(bool $success, string $message, array $data = []) {
+    header('Content-Type: application/json');
+    echo json_encode(array_merge(['success' => $success, 'message' => $message], $data));
+    exit;
 }
 ?>

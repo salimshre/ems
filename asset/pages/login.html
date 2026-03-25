@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — EventHub</title>
+    <link rel="stylesheet" href="../css/sign.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="login-bg">
 
@@ -13,65 +16,96 @@
 
     <!-- ROLE SWITCH -->
     <div class="role-switch">
-        <button class="active" onclick="setRole('user')">Student</button>
-        <button onclick="setRole('admin')">Admin</button>
+        <button class="active" type="button" onclick="setRole('user', this)">Student</button>
+        <button type="button" onclick="setRole('admin', this)">Admin</button>
     </div>
 
-    <!-- EMAIL -->
-    <input type="email" id="email" placeholder="Email / Username">
+    <!-- ERROR BANNER -->
+    <div class="auth-error" id="authError"></div>
 
-    <!-- PASSWORD -->
-    <input type="password" id="password" placeholder="Password">
+    <!-- LOGIN FORM -->
+    <form id="loginForm" novalidate>
+        <input type="hidden" name="action" value="login">
+        <input type="hidden" name="role"   id="role" value="user">
 
-    <div class="forgot">
-        <a href="#">Forgot password?</a>
-    </div>
+        <div class="input-box">
+            <i class="fa fa-envelope"></i>
+            <input type="email" name="email" id="email" placeholder="Email / Username" required autocomplete="username">
+        </div>
 
-    <!-- LOGIN BUTTON -->
-    <button class="login-btn" onclick="login()">Login →</button>
+        <div class="input-box" style="margin-top:10px;">
+            <i class="fa fa-lock"></i>
+            <input type="password" name="password" id="password" placeholder="Password" required autocomplete="current-password">
+            <i class="fa fa-eye toggle-pw" id="togglePw" onclick="togglePassword('password','togglePw')"></i>
+        </div>
+
+        <div class="forgot">
+            <a href="#">Forgot password?</a>
+        </div>
+
+        <button class="login-btn" type="submit" id="loginBtn">
+            <span id="loginLabel">Login</span>
+            <i class="fa fa-arrow-right" id="loginIcon"></i>
+            <span class="spinner" id="loginSpinner" style="display:none;"></span>
+        </button>
+    </form>
 
     <p class="register-text">
-        Don’t have an account? <a href="register.html">Register</a>
+        Don't have an account? <a href="sign.html">Register</a>
     </p>
 
 </div>
 
 <script>
-let selectedRole = "user";
-
-function setRole(role){
-    selectedRole = role;
-
-    let buttons = document.querySelectorAll(".role-switch button");
-    buttons.forEach(btn => btn.classList.remove("active"));
-
-    event.target.classList.add("active");
-}
-
-function login(){
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
-
-    let user = users.find(u => 
-        u.email === email && 
-        u.password === password &&
-        u.role === selectedRole
-    );
-
-    if(user){
-        localStorage.setItem("currentUser", JSON.stringify(user));
-
-        if(user.role === "admin"){
-            window.location.href = "admin.html";
-        } else {
-            window.location.href = "user.html";
-        }
-    } else {
-        alert("Invalid credentials or role!");
+    function setRole(role, btn) {
+        document.getElementById('role').value = role;
+        document.querySelectorAll('.role-switch button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('email').placeholder = role === 'admin' ? 'Admin Username' : 'Email Address';
     }
-}
+
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon  = document.getElementById(iconId);
+        const show  = input.type === 'password';
+        input.type  = show ? 'text' : 'password';
+        icon.className = 'fa toggle-pw ' + (show ? 'fa-eye-slash' : 'fa-eye');
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('authError');
+        el.textContent = msg;
+        el.style.display = msg ? 'block' : 'none';
+    }
+
+    function setLoading(loading) {
+        document.getElementById('loginBtn').disabled    = loading;
+        document.getElementById('loginLabel').style.display  = loading ? 'none' : 'inline';
+        document.getElementById('loginIcon').style.display   = loading ? 'none' : 'inline';
+        document.getElementById('loginSpinner').style.display = loading ? 'inline-block' : 'none';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        showError('');
+        setLoading(true);
+
+        try {
+            const data = new FormData(this);
+            const res  = await fetch('../php/auth.php', { method: 'POST', body: data });
+            const json = await res.json();
+
+            if (json.success) {
+                window.location.href = json.redirect ?? 'index.html';
+            } else {
+                showError(json.message);
+                setLoading(false);
+            }
+        } catch (err) {
+            showError('Something went wrong. Please try again.');
+            setLoading(false);
+        }
+    });
 </script>
 
 </body>

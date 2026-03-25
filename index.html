@@ -23,11 +23,11 @@
     </script>
 </head>
 
-<body class="bg-primary/10">
-    <header class="bg-white border border-black ">
-        <nav class="flex justify-between items-center  ">
+<body class="bg-white">
+    <header>
+        <nav>
             <span class="text-xl font-bold text-primary">EventHub</span>
-            <ul class="flex  gap-10 ">
+            <ul>
                 <li><a href="#hero" class="active nav-bar-link">Home</a></li>
                 <li><a href="#events" class="nav-bar-link">Events</a></li>
                 <li><a href="#about" class="nav-bar-link">About</a></li>
@@ -35,126 +35,119 @@
             </ul>
             <div class="nav-search">
                 <i class="fa fa-search"></i>
-                <a class="" href="asset/pages/login.html">
-                    Get started
-                </a>
+                <a href="asset/pages/login.html">Get started</a>
             </div>
         </nav>
     </header>
 
-    <div class="hero h-screen border-b border-black/20" id="hero">
-        <div class="flex flex-col gap-5 justify-start items-start">
+    <!-- HERO -->
+    <div class="hero" id="hero">
+        <div>
             <span>
                 <i class="fa fa-star"></i>
-                necy-gen management
+                next-gen management
             </span>
             <div class="hero-intro">
-                manage college
+                Manage College
                 <span>Events</span>
-                effortlessly
+                Effortlessly.
             </div>
             <p>
-                the all in one platform to browsse events, register instantly , and mark attenance with pofessionalism
-                meets campus life
+                The all-in-one platform to browse events, register instantly, and mark attendance with digital QR codes.
+                Professionalism meets campus life.
             </p>
             <div class="hero-button">
-                <button>
-                    view events
-                </button>
-                <button>
-                    login
-                </button>
+                <button>View Events</button>
+                <button>Login</button>
             </div>
         </div>
         <div class="hero-image">
-            <!-- should be in left 0 top -->
+            <!-- Top-left card: Instant Check-in -->
             <div class="hero-image-card">
                 <div class="hero-image-card-start">
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
-                <span></span>
-                <p></p>
+                <span>Instant Check-in</span>
+                <p>Seamless QR scanning</p>
             </div>
+
+            <!-- Center dark card -->
             <div class="hero-image-1">
-                <span>student events</span>
+                STUDENT
+                <span>EVENTS</span>
             </div>
+
+            <!-- Bottom-right card: Real-time Analytics -->
             <div class="hero-image-card">
                 <div class="hero-image-card-start">
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
-                <span>real time analytic</span>
-                <p>track the events</p>
+                <span>Real-time Analytics</span>
+                <p>Live attendance tracking</p>
             </div>
         </div>
     </div>
 
-    <section>
+    <!-- ABOUT / FEATURE CARDS -->
+    <section id="about">
         <div class="about-wrapper">
             <div class="about-cards">
-                <i class="fa fa-organize w-2 h-2 bg-primary/10 rounded-full p-2 "></i>
-                <span>or attenance</span>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam odio voluptate exercitationem sit
-                    temporibus eaque, quos corporis doloremque repellat necessitatibus minima eum dolorem error modi
-                    nobis alias tenetur. Iusto, qui.</p>
+                <i class="fa fa-qrcode"></i>
+                <span>QR Attendance</span>
+                <p>Swift check-in with unique QR codes for every participant, directly linked to your college ID.</p>
             </div>
-
             <div class="about-cards">
-                <i class="fa fa-user w-2 h-2 bg-primary/10 rounded-full p-2 "></i>
-                <span>or attenance</span>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam odio voluptate exercitationem sit
-                    temporibus eaque, quos corporis doloremque repellat necessitatibus minima eum dolorem error modi
-                    nobis alias tenetur. Iusto, qui.</p>
+                <i class="fa fa-user-plus"></i>
+                <span>Easy Registration</span>
+                <p>One-click event sign-ups, linked directly to your college ID.</p>
             </div>
-
             <div class="about-cards">
-                <i class="fa fa-window w-2 h-2 bg-primary/10 rounded-full p-2 "></i>
-                <span>organizer dashoard</span>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam odio voluptate exercitationem sit
-                    temporibus eaque, quos corporis doloremque repellat necessitatibus minima eum dolorem error modi
-                    nobis alias tenetur. Iusto, qui.</p>
+                <i class="fa fa-table-columns"></i>
+                <span>Organizer Dashboard</span>
+                <p>Full control over event creation, management, and analytics.</p>
             </div>
-
             <div class="about-cards">
-                <i class="fa fa-bell w-2 h-2 bg-primary/10 rounded-full p-2 "></i>
-                <span>instant updates</span>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam odio voluptate exercitationem sit
-                    temporibus eaque, quos corporis doloremque repellat necessitatibus minima eum dolorem error modi
-                    nobis alias tenetur. Iusto, qui.</p>
+                <i class="fa fa-bell"></i>
+                <span>Instant Updates</span>
+                <p>Real-time alerts for venue changes or event schedule shifts.</p>
             </div>
         </div>
     </section>
 
-    <section>
+    <!-- EVENTS SECTION -->
+    <section id="events">
         <div class="event-wrapper">
-            <span>upcoming events</span>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse sit veniam nam libero. Quisquam
-                reprehenderit saepe asperiores, impedit exercitationem doloremque tempore explicabo mollitia odio,
-                voluptas dolore nesciunt voluptatum quod quo!</p>
+            <div class="event-wrapper-header">
+                <div>
+                    <span>Upcoming Events</span>
+                    <p>Don't miss out on the most anticipated workshops, seminars, and feasts happening this semester.</p>
+                </div>
+                <a href="#">View All Events <i class="fa fa-arrow-right"></i></a>
+            </div>
             <div class="events-card-wrapper">
                 <div class="events-cards">
                     <div class="events-cards-image">
-                        <img src="" alt="">
+                        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop" alt="Tech Summit">
+                        <span class="event-badge">TechFest</span>
                     </div>
                     <div class="events-cards-content">
                         <span>
                             <i class="fa fa-calendar"></i>
-                            <p>2026-03-25</p>
-                            <i class="fa fa-time"></i>
+                            <p>Oct 24, 2026</p>
+                            <i class="fa fa-clock"></i>
                             <p>10:00 AM</p>
                         </span>
-                        <span>annual innocation summit</span>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis ipsum aliquid
-                            exercitationem, eaque, harum illo minima porro labore repellendus adipisci esse ducimus
-                            molestias vel. A repellendus nostrum similique mollitia reiciendis!</p>
+                        <span>Annual Innovation Summit</span>
+                        <p>Join us for a day of deep dives into AI, Blockchain, and the future of web technology in education.</p>
                         <div class="card-warpper">
-                            <button>register now</button>
+                            <button>Register</button>
                             <button>
                                 <i class="fa fa-location-dot"></i>
-                                <span> kathmandu </span>
+                                <span>Main Audi</span>
                             </button>
                         </div>
                     </div>
@@ -162,24 +155,23 @@
 
                 <div class="events-cards">
                     <div class="events-cards-image">
-                        <img src="" alt="">
+                        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&auto=format&fit=crop" alt="Harmony Beats">
+                        <span class="event-badge">Cultural</span>
                     </div>
                     <div class="events-cards-content">
                         <span>
                             <i class="fa fa-calendar"></i>
-                            <p>2026-03-25</p>
-                            <i class="fa fa-time"></i>
-                            <p>10:00 AM</p>
+                            <p>Oct 28, 2026</p>
+                            <i class="fa fa-clock"></i>
+                            <p>06:00 PM</p>
                         </span>
-                        <span>annual innocation summit</span>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis ipsum aliquid
-                            exercitationem, eaque, harum illo minima porro labore repellendus adipisci esse ducimus
-                            molestias vel. A repellendus nostrum similique mollitia reiciendis!</p>
+                        <span>Harmony Beats Concert</span>
+                        <p>The ultimate fusion of classical and contemporary music featuring top campus performers.</p>
                         <div class="card-warpper">
-                            <button>register now</button>
+                            <button>Register</button>
                             <button>
                                 <i class="fa fa-location-dot"></i>
-                                <span> kathmandu </span>
+                                <span>Open Grounds</span>
                             </button>
                         </div>
                     </div>
@@ -187,24 +179,23 @@
 
                 <div class="events-cards">
                     <div class="events-cards-image">
-                        <img src="" alt="">
+                        <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&auto=format&fit=crop" alt="Pitch Deck">
+                        <span class="event-badge">Workshop</span>
                     </div>
                     <div class="events-cards-content">
                         <span>
                             <i class="fa fa-calendar"></i>
-                            <p>2026-03-25</p>
-                            <i class="fa fa-time"></i>
-                            <p>10:00 AM</p>
+                            <p>Nov 02, 2026</p>
+                            <i class="fa fa-clock"></i>
+                            <p>11:30 AM</p>
                         </span>
-                        <span>annual innocation summit</span>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis ipsum aliquid
-                            exercitationem, eaque, harum illo minima porro labore repellendus adipisci esse ducimus
-                            molestias vel. A repellendus nostrum similique mollitia reiciendis!</p>
+                        <span>Founder's Pitch Deck 101</span>
+                        <p>Learn how to build a winning pitch deck and present your ideas to potential investors.</p>
                         <div class="card-warpper">
-                            <button>register now</button>
+                            <button>Register</button>
                             <button>
                                 <i class="fa fa-location-dot"></i>
-                                <span> kathmandu </span>
+                                <span>Seminar Hall B</span>
                             </button>
                         </div>
                     </div>
@@ -217,37 +208,36 @@
     <section id="how-it-works">
         <div class="work-wrapper">
             <h2>How It Works</h2>
-            <p>Three simple steps to transition from discovery to check-in.</p>
+            <p>Three simple steps to transition from discovery to check-in. It's that easy.</p>
         </div>
-
-        <div class="work-cards flex justify-between items-center">
+        <div class="work-cards">
             <div>
                 <div class="work-icon">
-                    <i class="fa fa-calender"></i>
+                    <i class="fa fa-calendar-days"></i>
                 </div>
                 <h3>1. Browse Events</h3>
-                <p>Find exciting fests & seminars that match your interests.</p>
+                <p>Find exciting fests and seminars that match your interests on our live calendar.</p>
             </div>
             <div>
                 <div class="work-icon">
-                    <i class="fa fa-organize"></i>
+                    <i class="fa fa-qrcode"></i>
                 </div>
-                <h3>2. Register & Get QR</h3>
-                <p>Your QR code is generated instantly after registration.</p>
+                <h3>2. Register &amp; Get QR</h3>
+                <p>Register in seconds. Your unique entry QR code will be generated instantly.</p>
             </div>
             <div>
                 <div class="work-icon">
                     <i class="fa fa-camera"></i>
                 </div>
-                <h3>3. Scan & Attend</h3>
-                <p>Show your QR at the venue for quick entry.</p>
+                <h3>3. Scan &amp; Attend</h3>
+                <p>Show your QR at the venue. Scan and enter without any paper queues.</p>
             </div>
         </div>
     </section>
 
     <!-- CTA SECTION -->
     <section id="cta">
-        <div class="flex justify-between items-center p-10">
+        <div>
             <div class="cta-content">
                 <h2>Ready to organize your next big event?</h2>
                 <p>Join hundreds of college clubs using EventHub to manage registrations effortlessly.</p>
@@ -262,37 +252,41 @@
     <!-- FOOTER -->
     <footer>
         <div class="footer-wrapepr">
-            <div class="flex flex-col gap-5">
-                <h3 class="font-bold text-white text-md">EventHub</h3>
-                <p class="font-sm text-white/20 text-md">Building the digital bridge between organizers and students.</p>
+            <div class="flex flex-col gap-4">
+                <h3 class="font-bold text-white text-base">EventHub</h3>
+                <p style="font-size:0.85rem;color:rgba(255,255,255,0.4);line-height:1.6;">Building the digital bridge between organizers and students since 2024. Designed for campus life.</p>
+                <div class="footer-socials">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
             </div>
 
-            <div class="flex flex-col gap-5">
-                <h3 class="font-bold text-white text-md">Quick Links</h3>
-                <p class="footer-links">About</p>
-                <p class="footer-links">Contact</p>
-                <p class="footer-links">Tech Stack</p>
+            <div class="flex flex-col gap-4">
+                <h3 class="font-bold text-white text-base">Quick Links</h3>
+                <a href="#" class="footer-links">About</a>
+                <a href="#" class="footer-links">Contact</a>
+                <a href="#" class="footer-links">Tech Stack</a>
             </div>
 
-            <div class="flex flex-col gap-5">
-                <h3 class="font-bold text-white text-md">Community</h3>
-                <p class="footer-links">Team</p>
-                <p class="footer-links">GitHub</p>
-                <p class="footer-links">Careers</p>
+            <div class="flex flex-col gap-4">
+                <h3 class="font-bold text-white text-base">Community</h3>
+                <a href="#" class="footer-links">Team Name</a>
+                <a href="#" class="footer-links">GitHub Link</a>
+                <a href="#" class="footer-links">Careers</a>
             </div>
 
-            <div class="flex flex-col gap-5">
-                <h3 class="font-bold text-white text-md">Subscribe</h3>
-                <p class="footer-links">Stay updated about events.</p>
-                <div class="flex flex-row">
-                    <input placeholder="Email" class=" w-40 h-10 rounded-l-lg p-2 footer-input">
+            <div class="flex flex-col gap-4">
+                <h3 class="font-bold text-white text-base">Subscribe</h3>
+                <p class="footer-links" style="cursor:default;">Get notified about new events happening around you.</p>
+                <div style="display:flex;flex-direction:row;align-items:center;">
+                    <input type="email" placeholder="Email">
                     <button class="footer-button">
                         <i class="fa fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
         </div>
-        <p>2026 EventHub. All rights reserved.</p>
+        <p>© 2026 EventHub. Built for functional elegance. All rights reserved.</p>
     </footer>
 
 </body>

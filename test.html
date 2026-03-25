@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub | Student Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   
+   
+</head>
+<body>
+
+<header>
+    <span class="logo"><i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>EventHub</span>
+    <nav>
+        <ul>
+            <li><button class="nav-btn active" data-page="home">Home</button></li>
+            <li><button class="nav-btn" data-page="events">Events</button></li>
+            <li><button class="nav-btn" data-page="registered">Registered</button></li>
+            <li><button class="nav-btn" data-page="profile">Profile</button></li>
+        </ul>
+    </nav>
+    <div>
+        <div class="header-search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="globalSearch" placeholder="Search events...">
+        </div>
+        <a href="#" class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+</header>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+    <div class="container">
+        <div style="margin-bottom: 32px;">
+            <h1 style="font-size: 2rem;">Welcome back, <span id="welcomeName">Alex Johnson</span> 👋</h1>
+            <p style="color: var(--text-mid);">Discover and register for amazing campus events</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-calendar-alt"></i>
+                <div class="stat-info">
+                    <span>Events Available</span>
+                    <span id="statTotalEvents">0</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <div class="stat-info">
+                    <span>Registered</span>
+                    <span id="statRegistered">0</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="stat-info">
+                    <span>Upcoming</span>
+                    <span id="statUpcoming">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2>🔥 Featured Events</h2>
+            <span class="explore-link" id="exploreAllBtn">Explore All Events →</span>
+        </div>
+        <div id="featuredEventsGrid" class="events-grid"></div>
+    </div>
+</div>
+
+<!-- EVENTS PAGE -->
+<div id="page-events" class="page">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h1 style="font-size: 1.8rem;">All Events</h1>
+                <p style="color: var(--text-mid);">Find your next experience</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap;">
+            <button class="filter-chip active" data-category="all">All</button>
+            <button class="filter-chip" data-category="tech">Tech</button>
+            <button class="filter-chip" data-category="cultural">Cultural</button>
+            <button class="filter-chip" data-category="workshop">Workshop</button>
+            <button class="filter-chip" data-category="sports">Sports</button>
+        </div>
+        <div id="allEventsGrid" class="events-grid"></div>
+    </div>
+</div>
+
+<!-- REGISTERED PAGE -->
+<div id="page-registered" class="page">
+    <div class="container">
+        <div class="section-header">
+            <h1>📌 My Registered Events</h1>
+        </div>
+        <div id="registeredListContainer" class="registered-list"></div>
+    </div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div id="page-profile" class="page">
+    <div class="container">
+        <div class="profile-layout">
+            <div class="profile-card">
+                <div class="avatar"><i class="fas fa-user-graduate"></i></div>
+                <div class="profile-name" id="profileNameDisplay">Alex Johnson</div>
+                <div class="profile-badge">Student · CSE</div>
+                <div style="margin-top: 20px;"><i class="fas fa-envelope"></i> alex.johnson@university.edu</div>
+                <div><i class="fas fa-map-marker-alt"></i> Main Campus</div>
+            </div>
+            <div>
+                <div class="info-grid">
+                    <div class="info-field"><label>Full Name</label><p id="fullNameVal">Alex Johnson</p></div>
+                    <div class="info-field"><label>Email</label><p>alex.johnson@university.edu</p></div>
+                    <div class="info-field"><label>Department</label><p>Computer Science & Engineering</p></div>
+                    <div class="info-field"><label>Roll Number</label><p>CSE-2023-042</p></div>
+                    <div class="info-field"><label>Semester</label><p>4th Semester</p></div>
+                    <div class="info-field"><label>Member Since</label><p>2023</p></div>
+                </div>
+                <div class="activity-stats">
+                    <div class="activity-card"><i class="fas fa-ticket-alt fa-lg" style="color: var(--primary);"></i><div><strong>Events Joined</strong><br><span id="joinedCount">0</span></div></div>
+                    <div class="activity-card"><i class="fas fa-award fa-lg" style="color: var(--secondary);"></i><div><strong>Certificates</strong><br>5</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-wrapper">
+        <div><div class="footer-logo"><i class="fas fa-calendar-alt"></i> EventHub</div><p style="font-size: 0.85rem; color: var(--text-mid);">Connecting students with unforgettable experiences.</p></div>
+        <div class="footer-links"><ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li></ul></div>
+        <div class="footer-links"><ul><li><a href="#">Help Center</a></li><li><a href="#">Privacy</a></li></ul></div>
+        <div><span style="font-weight: 600;">Newsletter</span><div style="display: flex; margin-top: 12px;"><input type="email" placeholder="Your email" style="padding: 8px; border-radius: 40px; border: 1px solid var(--border);"><button style="background: var(--primary); color:white; border: none; border-radius: 40px; padding: 0 16px; margin-left: 8px;"><i class="fas fa-arrow-right"></i></button></div></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 EventHub — All rights reserved.</p></div>
+</footer>
+
+
+</body>
+</html>

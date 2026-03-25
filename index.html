@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="asset/css/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e3a8a',
+                        secondary: '#f59e0b',
+                        accent: '#10b981',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-primary/10">
+    <header class="bg-white border border-black ">
+        <nav class="flex justify-between items-center  ">
+            <span class="text-xl font-bold text-primary">EventHub</span>
+            <ul class="flex  gap-10 ">
+                <li><a href="#hero" class="active nav-bar-link">Home</a></li>
+                <li><a href="#events" class="nav-bar-link">Events</a></li>
+                <li><a href="#about" class="nav-bar-link">About</a></li>
+                <li><a href="#contact" class="nav-bar-link">Contact</a></li>
+            </ul>
+            <div class="nav-search">
+                <i class="fa fa-search"></i>
+                <a class="" href="asset/pages/login.html">
+                    Get started
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="hero h-screen border-b border-black/20" id="hero">
+        <div class="flex flex-col gap-5 justify-start items-start">
+            <span>
+                <i class="fa fa-star"></i>
+                necy-gen management
+            </span>
+            <div class="hero-intro">
+                manage college
+                <span>Events</span>
+                effortlessly
+            </div>
+            <p>
+                the all in one platform to browsse events, register instantly , and mark attenance with pofessionalism
+                meets campus life
+            </p>
+            <div class="hero-button">
+                <button>
+                    view events
+                </button>
+                <button>
+                    login
+                </button>
+            </div>
+        </div>
+        <div class="hero-image">
+            <!-- should be in left 0 top -->
+            <div class="hero-image-card">
+                <div class="hero-image-card-start">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span></span>
+                <p></p>
+            </div>
+            <div class="hero-image-1">
+                <span>student events</span>
+            </div>
+            <div class="hero-image-card">
+                <div class="hero-image-card-start">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span>real time analytic</span>
+                <p>track the events</p>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <div class="about-wrapper">
+            <div class="about-cards">
+                <i class="fa fa-organize w-2 h-2 bg-primary/10 rounded-full p-2 "></i>
+                <span>or attenance</span>
+                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam odio voluptate exercitationem sit
+                    temporibus eaque, quos corporis doloremque repellat necessitatibus minima eum dolorem error modi
+                    nobis alias tenetur. Iusto, qui.</p>
+            </div>
+
+            <div class="about-cards">
+                <i class="fa fa-user w-2 h-2 bg-primary/10 rounded-full p-2 "></i>
+                <span>or attenance</span>
+                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam odio voluptate exercitationem sit
+                    temporibus eaque, quos corporis doloremque repellat necessitatibus minima eum dolorem error modi
+                    nobis alias tenetur. Iusto, qui.</p>
+            </div>
+
+            <div class="about-cards">
+                <i class="fa fa-window w-2 h-2 bg-primary/10 rounded-full p-2 "></i>
+                <span>organizer dashoard</span>
+                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam odio voluptate exercitationem sit
+                    temporibus eaque, quos corporis doloremque repellat necessitatibus minima eum dolorem error modi
+                    nobis alias tenetur. Iusto, qui.</p>
+            </div>
+
+            <div class="about-cards">
+                <i class="fa fa-bell w-2 h-2 bg-primary/10 rounded-full p-2 "></i>
+                <span>instant updates</span>
+                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam odio voluptate exercitationem sit
+                    temporibus eaque, quos corporis doloremque repellat necessitatibus minima eum dolorem error modi
+                    nobis alias tenetur. Iusto, qui.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="event-wrapper">
+            <span>upcoming events</span>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse sit veniam nam libero. Quisquam
+                reprehenderit saepe asperiores, impedit exercitationem doloremque tempore explicabo mollitia odio,
+                voluptas dolore nesciunt voluptatum quod quo!</p>
+            <div class="events-card-wrapper">
+                <div class="events-cards">
+                    <div class="events-cards-image">
+                        <img src="" alt="">
+                    </div>
+                    <div class="events-cards-content">
+                        <span>
+                            <i class="fa fa-calendar"></i>
+                            <p>2026-03-25</p>
+                            <i class="fa fa-time"></i>
+                            <p>10:00 AM</p>
+                        </span>
+                        <span>annual innocation summit</span>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis ipsum aliquid
+                            exercitationem, eaque, harum illo minima porro labore repellendus adipisci esse ducimus
+                            molestias vel. A repellendus nostrum similique mollitia reiciendis!</p>
+                        <div class="card-warpper">
+                            <button>register now</button>
+                            <button>
+                                <i class="fa fa-location-dot"></i>
+                                <span> kathmandu </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="events-cards">
+                    <div class="events-cards-image">
+                        <img src="" alt="">
+                    </div>
+                    <div class="events-cards-content">
+                        <span>
+                            <i class="fa fa-calendar"></i>
+                            <p>2026-03-25</p>
+                            <i class="fa fa-time"></i>
+                            <p>10:00 AM</p>
+                        </span>
+                        <span>annual innocation summit</span>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis ipsum aliquid
+                            exercitationem, eaque, harum illo minima porro labore repellendus adipisci esse ducimus
+                            molestias vel. A repellendus nostrum similique mollitia reiciendis!</p>
+                        <div class="card-warpper">
+                            <button>register now</button>
+                            <button>
+                                <i class="fa fa-location-dot"></i>
+                                <span> kathmandu </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="events-cards">
+                    <div class="events-cards-image">
+                        <img src="" alt="">
+                    </div>
+                    <div class="events-cards-content">
+                        <span>
+                            <i class="fa fa-calendar"></i>
+                            <p>2026-03-25</p>
+                            <i class="fa fa-time"></i>
+                            <p>10:00 AM</p>
+                        </span>
+                        <span>annual innocation summit</span>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis ipsum aliquid
+                            exercitationem, eaque, harum illo minima porro labore repellendus adipisci esse ducimus
+                            molestias vel. A repellendus nostrum similique mollitia reiciendis!</p>
+                        <div class="card-warpper">
+                            <button>register now</button>
+                            <button>
+                                <i class="fa fa-location-dot"></i>
+                                <span> kathmandu </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how-it-works">
+        <div class="work-wrapper">
+            <h2>How It Works</h2>
+            <p>Three simple steps to transition from discovery to check-in.</p>
+        </div>
+
+        <div class="work-cards flex justify-between items-center">
+            <div>
+                <div class="work-icon">
+                    <i class="fa fa-calender"></i>
+                </div>
+                <h3>1. Browse Events</h3>
+                <p>Find exciting fests & seminars that match your interests.</p>
+            </div>
+            <div>
+                <div class="work-icon">
+                    <i class="fa fa-organize"></i>
+                </div>
+                <h3>2. Register & Get QR</h3>
+                <p>Your QR code is generated instantly after registration.</p>
+            </div>
+            <div>
+                <div class="work-icon">
+                    <i class="fa fa-camera"></i>
+                </div>
+                <h3>3. Scan & Attend</h3>
+                <p>Show your QR at the venue for quick entry.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section id="cta">
+        <div class="flex justify-between items-center p-10">
+            <div class="cta-content">
+                <h2>Ready to organize your next big event?</h2>
+                <p>Join hundreds of college clubs using EventHub to manage registrations effortlessly.</p>
+            </div>
+            <div class="cta-buttons">
+                <button>Get Started Now</button>
+                <button>Contact Us</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-wrapepr">
+            <div class="flex flex-col gap-5">
+                <h3 class="font-bold text-white text-md">EventHub</h3>
+                <p class="font-sm text-white/20 text-md">Building the digital bridge between organizers and students.</p>
+            </div>
+
+            <div class="flex flex-col gap-5">
+                <h3 class="font-bold text-white text-md">Quick Links</h3>
+                <p class="footer-links">About</p>
+                <p class="footer-links">Contact</p>
+                <p class="footer-links">Tech Stack</p>
+            </div>
+
+            <div class="flex flex-col gap-5">
+                <h3 class="font-bold text-white text-md">Community</h3>
+                <p class="footer-links">Team</p>
+                <p class="footer-links">GitHub</p>
+                <p class="footer-links">Careers</p>
+            </div>
+
+            <div class="flex flex-col gap-5">
+                <h3 class="font-bold text-white text-md">Subscribe</h3>
+                <p class="footer-links">Stay updated about events.</p>
+                <div class="flex flex-row">
+                    <input placeholder="Email" class=" w-40 h-10 rounded-l-lg p-2 footer-input">
+                    <button class="footer-button">
+                        <i class="fa fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <p>2026 EventHub. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

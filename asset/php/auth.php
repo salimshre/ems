@@ -49,7 +49,17 @@ function handleLogin() {
         respond(false, 'No account found with those credentials.');
     }
 
-    $validPassword = password_verify($password, $row['hash']);
+    // Check password - support both hashed and plain text
+    $validPassword = false;
+    
+    // Try password_verify first (for hashed passwords)
+    if (password_verify($password, $row['hash'])) {
+        $validPassword = true;
+    }
+    // Fallback: check plain text (for admin without hash)
+    elseif ($row['hash'] === $password) {
+        $validPassword = true;
+    }
 
     if (!$validPassword) {
         respond(false, 'Incorrect password.');
@@ -98,7 +108,6 @@ function handleSignup() {
         respond(false, 'Password must be at least 6 characters.');
     }
 
-    $hash = password_hash($password, PASSWORD_BCRYPT);
     $conn = getConn();
 
     if ($role === 'admin') {
@@ -118,11 +127,12 @@ function handleSignup() {
         $officeLocation = trim($_POST['officeLocation'] ?? '');
         $adminID       = trim($_POST['adminID']        ?? '');
 
+        // Store password as plain text for admin (easier for testing)
         $stmt = mysqli_prepare($conn,
             "INSERT INTO admin (username, password, name, department, contact, office_location, admin_code)
              VALUES (?, ?, ?, ?, ?, ?, ?)");
         mysqli_stmt_bind_param($stmt, 'sssssss',
-            $email, $hash, $name, $dept, $contact, $officeLocation, $adminID);
+            $email, $password, $name, $dept, $contact, $officeLocation, $adminID);
 
     } else {
         // ── Check duplicate user email ──
@@ -142,6 +152,9 @@ function handleSignup() {
         $college    = trim($_POST['college']    ?? '');
         $university = trim($_POST['university'] ?? '');
         $location   = trim($_POST['location']   ?? '');
+
+        // Hash password for users
+        $hash = password_hash($password, PASSWORD_BCRYPT);
 
         $stmt = mysqli_prepare($conn,
             "INSERT INTO users (name, email, password, contact, faculty, semester, college, university, location)

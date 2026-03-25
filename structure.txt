@@ -1,0 +1,23 @@
+codefeat/
+├── asset/
+│   ├── pages/
+│   │   ├── login.html
+│   │   ├── sign.html
+│   │   ├── student.html
+│   │   └── admin.html
+│   ├── css/
+│   │   ├── sign.css
+│   │   ├── stshome.css
+│   │   └── college.css
+│   ├── js/
+│   │   ├── student.js (updated version)
+│   │   └── college.js (updated version)
+│   └── php/
+│       ├── config/
+│       │   └── db.php
+│       ├── auth.php
+│       ├── events.php
+│       ├── venues.php
+│       ├── registrations.php
+│       ├── profile.php
+│       └── dashboard.php

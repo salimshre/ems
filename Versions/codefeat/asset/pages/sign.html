@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account — EventHub</title>
+    <link rel="stylesheet" href="../css/sign.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body class="login-bg">
+
+<div class="register-container">
+
+    <h2 class="logo">EventHub</h2>
+    <p class="subtitle">Create your account</p>
+
+    <!-- ERROR / SUCCESS BANNER -->
+    <div class="auth-error"   id="authError"   style="display:none;"></div>
+    <div class="auth-success" id="authSuccess" style="display:none;"></div>
+
+    <form id="signupForm" novalidate>
+        <input type="hidden" name="action" value="signup">
+        <input type="hidden" name="role"   id="roleHidden" value="user">
+
+        <!-- ── BASIC INFO ───────────────────────── -->
+        <div class="form-section">
+            <p class="section-title"><i class="fa fa-user-circle"></i> Basic Information</p>
+
+            <div class="input-box">
+                <i class="fa fa-user"></i>
+                <input type="text" name="name" id="name" placeholder="Full Name" required>
+            </div>
+
+            <div class="input-box">
+                <i class="fa fa-envelope"></i>
+                <input type="email" name="email" id="email" placeholder="Email Address" required autocomplete="username">
+            </div>
+
+            <div class="input-box">
+                <i class="fa fa-lock"></i>
+                <input type="password" name="password" id="password" placeholder="Password (min 6 chars)" required autocomplete="new-password">
+                <i class="fa fa-eye toggle-pw" id="togglePw" onclick="togglePassword('password','togglePw')"></i>
+            </div>
+
+            <!-- Password strength bar -->
+            <div class="pw-strength-bar" id="pwStrengthBar">
+                <div class="pw-strength-fill" id="pwStrengthFill"></div>
+            </div>
+            <p class="pw-strength-label" id="pwStrengthLabel"></p>
+        </div>
+
+        <!-- ── ROLE SELECTOR ───────────────────── -->
+        <div class="form-section">
+            <p class="section-title"><i class="fa fa-id-badge"></i> Select Role</p>
+            <div class="role-switch">
+                <button type="button" class="active" onclick="setRole('user', this)">Student</button>
+                <button type="button" onclick="setRole('admin', this)">Admin</button>
+            </div>
+        </div>
+
+        <!-- ── STUDENT FIELDS ──────────────────── -->
+        <div id="studentFields" class="role-fields" style="display:block;">
+            <div class="form-section">
+                <p class="section-title"><i class="fa fa-graduation-cap"></i> Student Details</p>
+
+                <div class="input-box">
+                    <i class="fa fa-phone"></i>
+                    <input type="tel" name="contact" id="contact" placeholder="Contact Number">
+                </div>
+
+                <div class="select-box">
+                    <i class="fa fa-book"></i>
+                    <select name="faculty" id="faculty">
+                        <option value="">— Faculty —</option>
+                        <option value="civil">Civil Engineering</option>
+                        <option value="computer">Computer Engineering</option>
+                        <option value="electrical">Electrical Engineering</option>
+                        <option value="architecture">Architecture</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="select-box">
+                    <i class="fa fa-layer-group"></i>
+                    <select name="semester" id="semester">
+                        <option value="">— Semester —</option>
+                        <option value="i">I</option>
+                        <option value="ii">II</option>
+                        <option value="iii">III</option>
+                        <option value="iv">IV</option>
+                        <option value="v">V</option>
+                        <option value="vi">VI</option>
+                        <option value="vii">VII</option>
+                        <option value="viii">VIII</option>
+                    </select>
+                </div>
+
+                <div class="select-box">
+                    <i class="fa fa-building-columns"></i>
+                    <select name="college" id="college">
+                        <option value="">— College —</option>
+                        <option value="kantipur">Kantipur City College</option>
+                        <option value="pulchowk">Pulchowk Campus</option>
+                        <option value="thapathali">Thapathali Campus</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="input-box">
+                    <i class="fa fa-university"></i>
+                    <input type="text" name="university" id="university" placeholder="University">
+                </div>
+
+                <div class="input-box">
+                    <i class="fa fa-location-dot"></i>
+                    <input type="text" name="location" id="location" placeholder="City / Location">
+                </div>
+            </div>
+        </div>
+
+        <!-- ── ADMIN FIELDS ───────────────────── -->
+        <div id="adminFields" class="role-fields" style="display:none;">
+            <div class="form-section">
+                <p class="section-title"><i class="fa fa-shield-halved"></i> Admin Details</p>
+
+                <div class="input-box">
+                    <i class="fa fa-id-card"></i>
+                    <input type="text" name="adminID" id="adminID" placeholder="Admin ID / Code">
+                </div>
+
+                <div class="input-box">
+                    <i class="fa fa-building"></i>
+                    <input type="text" name="adminDept" id="adminDept" placeholder="Department">
+                </div>
+
+                <div class="input-box">
+                    <i class="fa fa-phone"></i>
+                    <input type="tel" name="adminContact" id="adminContact" placeholder="Contact Number">
+                </div>
+
+                <div class="input-box">
+                    <i class="fa fa-location-dot"></i>
+                    <input type="text" name="officeLocation" id="officeLocation" placeholder="Office Location">
+                </div>
+            </div>
+        </div>
+
+        <button class="login-btn" type="submit" id="signupBtn">
+            <span id="signupLabel">Create Account</span>
+            <i class="fa fa-arrow-right" id="signupIcon"></i>
+            <span class="spinner" id="signupSpinner" style="display:none;"></span>
+        </button>
+
+        <p class="register-text">
+            Already have an account? <a href="login.html">Login</a>
+        </p>
+    </form>
+
+</div>
+
+<script>
+    function setRole(role, btn) {
+        document.getElementById('roleHidden').value = role;
+        document.querySelectorAll('.role-switch button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('studentFields').style.display = role === 'user'  ? 'block' : 'none';
+        document.getElementById('adminFields').style.display   = role === 'admin' ? 'block' : 'none';
+    }
+
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon  = document.getElementById(iconId);
+        const show  = input.type === 'password';
+        input.type  = show ? 'text' : 'password';
+        icon.className = 'fa toggle-pw ' + (show ? 'fa-eye-slash' : 'fa-eye');
+    }
+
+    // Password strength meter
+    document.getElementById('password').addEventListener('input', function() {
+        const val = this.value;
+        const fill  = document.getElementById('pwStrengthFill');
+        const label = document.getElementById('pwStrengthLabel');
+        let score = 0;
+        if (val.length >= 6)  score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        const levels = [
+            { pct: '0%',   color: 'transparent', text: '' },
+            { pct: '25%',  color: '#ef4444',      text: 'Weak' },
+            { pct: '50%',  color: '#f59e0b',      text: 'Fair' },
+            { pct: '75%',  color: '#3b82f6',      text: 'Good' },
+            { pct: '100%', color: '#10b981',      text: 'Strong' },
+        ];
+        const level = levels[Math.min(score, 4)];
+        fill.style.width      = level.pct;
+        fill.style.background = level.color;
+        label.textContent     = level.text;
+        label.style.color     = level.color;
+    });
+
+    function showBanner(type, msg) {
+        const el = document.getElementById(type === 'error' ? 'authError' : 'authSuccess');
+        const hide = document.getElementById(type === 'error' ? 'authSuccess' : 'authError');
+        hide.style.display = 'none';
+        el.textContent = msg;
+        el.style.display = msg ? 'block' : 'none';
+        if (msg) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function setLoading(loading) {
+        document.getElementById('signupBtn').disabled        = loading;
+        document.getElementById('signupLabel').style.display  = loading ? 'none' : 'inline';
+        document.getElementById('signupIcon').style.display   = loading ? 'none' : 'inline';
+        document.getElementById('signupSpinner').style.display = loading ? 'inline-block' : 'none';
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        showBanner('error', '');
+        showBanner('success', '');
+        setLoading(true);
+
+        try {
+            const data = new FormData(this);
+            const res  = await fetch('../php/auth.php', { method: 'POST', body: data });
+            const json = await res.json();
+
+            if (json.success) {
+                showBanner('success', json.message + ' Redirecting to login…');
+                setTimeout(() => { window.location.href = 'login.html'; }, 1800);
+            } else {
+                showBanner('error', json.message);
+                setLoading(false);
+            }
+        } catch (err) {
+            showBanner('error', 'Something went wrong. Please try again.');
+            setLoading(false);
+        }
+    });
+</script>
+
+</body>
+</html>

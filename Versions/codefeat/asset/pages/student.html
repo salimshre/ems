@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eventhub - Student Portal</title>
+  <link rel="stylesheet" href="../css/stshome.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <span>Eventhub</span>
+    <nav>
+      <ul>
+        <li><button onclick="student_page('home')" id="btn-home" class="active">Home</button></li>
+        <li><button onclick="student_page('events')" id="btn-events">Events</button></li>
+        <li><button onclick="student_page('registered')" id="btn-registered">Registered</button></li>
+        <li><button onclick="student_page('profile')" id="btn-profile">Profile</button></li>
+      </ul>
+    </nav>
+    <div>
+      <div class="header-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search events...">
+      </div>
+      <a href="#">Logout</a>
+    </div>
+  </header>
+
+
+  <!-- HOME PAGE -->
+  <div class="sts-hero" id="page-home">
+
+    <!-- Intro -->
+    <div class="sts-intro">
+      <div class="sts-intro-text">
+        <span>Welcome, Gaurab</span>
+        <p>Check upcoming events and manage your registrations.</p>
+      </div>
+      <button class="btn-explore-all" onclick="student_page('events')">Explore All Events</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="sts-stats">
+      <div class="sts-event-card">
+        <div class="sts-event-card-icon blue">
+          <i class="fa-regular fa-calendar"></i>
+        </div>
+        <div class="sts-event-intro">
+          <span>Events Available</span>
+          <span>24</span>
+        </div>
+      </div>
+      <div class="sts-event-card">
+        <div class="sts-event-card-icon teal">
+          <i class="fa-solid fa-user-check"></i>
+        </div>
+        <div class="sts-event-intro">
+          <span>Events Registered</span>
+          <span>08</span>
+        </div>
+      </div>
+      <div class="sts-event-card">
+        <div class="sts-event-card-icon amber">
+          <i class="fa-solid fa-shield-check"></i>
+        </div>
+        <div class="sts-event-intro">
+          <span>Events Attended</span>
+          <span>12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="sts-section-header">
+      <h2>Upcoming Events</h2>
+      <a href="#" onclick="student_page('events'); return false;">View Schedule <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
+    <div class="sts-upcoming-events">
+
+      <div class="sts-upcoming-event-card">
+        <div class="sts-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&auto=format&fit=crop" alt="Future of AI: Student Summit 2024">
+          <span class="sts-card-badge tech">Tech</span>
+        </div>
+        <div class="sts-upcoming-event-intro">
+          <div class="sts-upcomming-wrapper">
+            <span class="ev-name">Future of AI: Student Summit 2024</span>
+            <div class="ev-meta">
+              <i class="fa-regular fa-calendar"></i>
+              <span>Oct 24</span>
+              <span class="ev-sep">•</span>
+              <span>10:00 AM</span>
+            </div>
+            <div class="ev-meta">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>Main Auditorium, Hall A</span>
+            </div>
+            <p class="ev-desc">Join industry leaders as we explore the transformative power of generative AI in modern applications and research.</p>
+          </div>
+          <button class="btn-register" onclick="showToast('Registered for Future of AI Summit!', 'success')">Register Now</button>
+        </div>
+      </div>
+
+      <div class="sts-upcoming-event-card">
+        <div class="sts-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&auto=format&fit=crop" alt="Global Rhythm: Annual Music Fest">
+          <span class="sts-card-badge cultural">Cultural</span>
+        </div>
+        <div class="sts-upcoming-event-intro">
+          <div class="sts-upcomming-wrapper">
+            <span class="ev-name">Global Rhythm: Annual Music Fest</span>
+            <div class="ev-meta">
+              <i class="fa-regular fa-calendar"></i>
+              <span>Nov 02</span>
+              <span class="ev-sep">•</span>
+              <span>5:30 PM</span>
+            </div>
+            <div class="ev-meta">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>Campus Open Grounds</span>
+            </div>
+            <p class="ev-desc">A night of diverse musical performances from across the globe, featuring student bands and local artists.</p>
+          </div>
+          <button class="btn-register" onclick="showToast('Registered for Global Rhythm Fest!', 'success')">Register Now</button>
+        </div>
+      </div>
+
+      <div class="sts-upcoming-event-card">
+        <div class="sts-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&auto=format&fit=crop" alt="UX Design: From Zero to Hero">
+          <span class="sts-card-badge workshop">Workshop</span>
+        </div>
+        <div class="sts-upcoming-event-intro">
+          <div class="sts-upcomming-wrapper">
+            <span class="ev-name">UX Design: From Zero to Hero</span>
+            <div class="ev-meta">
+              <i class="fa-regular fa-calendar"></i>
+              <span>Oct 28</span>
+              <span class="ev-sep">•</span>
+              <span>2:00 PM</span>
+            </div>
+            <div class="ev-meta">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>Design Lab, 3rd Floor</span>
+            </div>
+            <p class="ev-desc">A hands-on intensive workshop focusing on user research, wireframing, and creating high-fidelity prototypes.</p>
+          </div>
+          <button class="btn-register" onclick="showToast('Registered for UX Design Workshop!', 'success')">Register Now</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- REGISTERED PAGE -->
+  <div class="register" id="page-registered">
+
+    <div class="register-intro">
+      <span>Student Portal</span>
+      <span>My Registered Events</span>
+      <p>Manage your upcoming schedule, view details, or modify your attendance.</p>
+    </div>
+
+    <div class="register-card-wrapepr">
+
+      <div class="regsiter-card-wrapper-aaside">
+        <div class="aside-card">
+          <div class="card-1">
+            <span>Total Registrations</span>
+            <span>03</span>
+          </div>
+          <div class="card-1">
+            <span>Upcoming Events</span>
+            <span>02</span>
+          </div>
+          <div class="card-3">
+            <span>Calendar View <i class="fa-regular fa-calendar"></i></span>
+          </div>
+        </div>
+
+        <div class="register-wrapper-aaside-card-2">
+          <span>Career Fair 2024</span>
+          <p>Don't forget — registration closes in 2 days.</p>
+          <button onclick="showToast('Opening Career Fair details...', 'success')">Explore</button>
+        </div>
+      </div>
+
+      <div class="register-card-main">
+
+        <div class="register-card">
+          <div class="register-card-img">
+            <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=400&auto=format&fit=crop" alt="Future of AI Summit">
+          </div>
+          <div class="register-card-intro">
+            <span><span>Future of AI: Student Summit 2024</span></span>
+            <span><i class="fa-regular fa-calendar"></i><span>Oct 24, 2024</span></span>
+            <span><i class="fa-regular fa-clock"></i><span>10:00 AM</span></span>
+            <span><i class="fa-solid fa-location-dot"></i><span>Main Auditorium, Hall A</span></span>
+            <span><i class="fa-regular fa-file-lines"></i><span>Generative AI, research talks, live demos</span></span>
+          </div>
+          <div class="register-card-button">
+            <button class="register-card-button-1">View Details</button>
+            <button class="register-card-button-2" onclick="showToast('Registration cancelled.', 'error')">Cancel Registration</button>
+          </div>
+        </div>
+
+        <div class="register-card">
+          <div class="register-card-img">
+            <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&auto=format&fit=crop" alt="Global Rhythm Fest">
+          </div>
+          <div class="register-card-intro">
+            <span><span>Global Rhythm: Annual Music Fest</span></span>
+            <span><i class="fa-regular fa-calendar"></i><span>Nov 02, 2024</span></span>
+            <span><i class="fa-regular fa-clock"></i><span>5:30 PM</span></span>
+            <span><i class="fa-solid fa-location-dot"></i><span>Campus Open Grounds</span></span>
+            <span><i class="fa-regular fa-file-lines"></i><span>Live music, student bands, cultural performances</span></span>
+          </div>
+          <div class="register-card-button">
+            <button class="register-card-button-1">View Details</button>
+            <button class="register-card-button-2" onclick="showToast('Registration cancelled.', 'error')">Cancel Registration</button>
+          </div>
+        </div>
+
+        <div class="register-card">
+          <div class="register-card-img">
+            <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&auto=format&fit=crop" alt="UX Workshop">
+          </div>
+          <div class="register-card-intro">
+            <span><span>UX Design: From Zero to Hero</span></span>
+            <span><i class="fa-regular fa-calendar"></i><span>Oct 28, 2024</span></span>
+            <span><i class="fa-regular fa-clock"></i><span>2:00 PM</span></span>
+            <span><i class="fa-solid fa-location-dot"></i><span>Design Lab, 3rd Floor</span></span>
+            <span><i class="fa-regular fa-file-lines"></i><span>Wireframing, prototyping, Figma hands-on</span></span>
+          </div>
+          <div class="register-card-button">
+            <button class="register-card-button-1">View Details</button>
+            <button class="register-card-button-2" onclick="showToast('Registration cancelled.', 'error')">Cancel Registration</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- PROFILE PAGE -->
+  <div class="student-profile" id="page-profile">
+
+    <div class="profile-intro">
+      <span>Student Profile</span>
+      <p>Manage your profile and settings</p>
+    </div>
+
+    <div class="profile-main">
+
+      <div class="profile-aside">
+        <div class="sts-profile">
+          <div class="sts-profile-img">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&crop=face" alt="Profile">
+          </div>
+          <div class="sts-profile-intro">
+            <span>Gaurab</span>
+            <span>Student</span>
+          </div>
+          <div class="sts-profile-status">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Verified</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-info-grid">
+        <div class="profile-info-field">
+          <label>Full Name</label>
+          <p>Gaurab</p>
+        </div>
+        <div class="profile-info-field">
+          <label>Email Address</label>
+          <p>gaurab@university.edu</p>
+        </div>
+        <div class="profile-info-field">
+          <label>Department</label>
+          <p>Computer Science &amp; Engineering</p>
+        </div>
+        <div class="profile-info-field">
+          <label>Roll Number</label>
+          <p>CSE-2021-042</p>
+        </div>
+        <div class="profile-info-field">
+          <label>Current Semester</label>
+          <p>6th Semester</p>
+        </div>
+        <div class="profile-info-field">
+          <label>Campus Location</label>
+          <p>Main Block, Building A</p>
+        </div>
+      </div>
+
+      <div class="profile-activity">
+        <h4>Recent Activity</h4>
+        <div class="profile-activity-cards">
+          <div class="activity-card">
+            <div class="activity-card-icon">
+              <i class="fa-regular fa-calendar-check"></i>
+            </div>
+            <div>
+              <p>Events Joined</p>
+              <p>12</p>
+            </div>
+          </div>
+          <div class="activity-card">
+            <div class="activity-card-icon tertiary">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div>
+              <p>Certificates</p>
+              <p>08</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- EVENTS BROWSE PAGE -->
+  <div class="sts-events-page" id="page-events">
+
+    <div class="sts-events-page-header">
+      <h1>All Events</h1>
+      <p>Browse and register for events happening across campus</p>
+    </div>
+
+    <div class="sts-events-grid">
+
+      <div class="sts-upcoming-event-card">
+        <div class="sts-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&auto=format&fit=crop" alt="AI Summit">
+          <span class="sts-card-badge tech">Tech</span>
+        </div>
+        <div class="sts-upcoming-event-intro">
+          <div class="sts-upcomming-wrapper">
+            <span class="ev-name">Future of AI: Student Summit 2024</span>
+            <div class="ev-meta"><i class="fa-regular fa-calendar"></i><span>Oct 24</span><span class="ev-sep">•</span><span>10:00 AM</span></div>
+            <div class="ev-meta"><i class="fa-solid fa-location-dot"></i><span>Main Auditorium, Hall A</span></div>
+            <p class="ev-desc">Join industry leaders as we explore the transformative power of generative AI in modern applications and research.</p>
+          </div>
+          <button class="btn-register" onclick="showToast('Registered for Future of AI Summit!', 'success')">Register Now</button>
+        </div>
+      </div>
+
+      <div class="sts-upcoming-event-card">
+        <div class="sts-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&auto=format&fit=crop" alt="Music Fest">
+          <span class="sts-card-badge cultural">Cultural</span>
+        </div>
+        <div class="sts-upcoming-event-intro">
+          <div class="sts-upcomming-wrapper">
+            <span class="ev-name">Global Rhythm: Annual Music Fest</span>
+            <div class="ev-meta"><i class="fa-regular fa-calendar"></i><span>Nov 02</span><span class="ev-sep">•</span><span>5:30 PM</span></div>
+            <div class="ev-meta"><i class="fa-solid fa-location-dot"></i><span>Campus Open Grounds</span></div>
+            <p class="ev-desc">A night of diverse musical performances from across the globe, featuring student bands and local artists.</p>
+          </div>
+          <button class="btn-register" onclick="showToast('Registered for Global Rhythm Fest!', 'success')">Register Now</button>
+        </div>
+      </div>
+
+      <div class="sts-upcoming-event-card">
+        <div class="sts-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&auto=format&fit=crop" alt="UX Workshop">
+          <span class="sts-card-badge workshop">Workshop</span>
+        </div>
+        <div class="sts-upcoming-event-intro">
+          <div class="sts-upcomming-wrapper">
+            <span class="ev-name">UX Design: From Zero to Hero</span>
+            <div class="ev-meta"><i class="fa-regular fa-calendar"></i><span>Oct 28</span><span class="ev-sep">•</span><span>2:00 PM</span></div>
+            <div class="ev-meta"><i class="fa-solid fa-location-dot"></i><span>Design Lab, 3rd Floor</span></div>
+            <p class="ev-desc">A hands-on intensive workshop focusing on user research, wireframing, and creating high-fidelity prototypes.</p>
+          </div>
+          <button class="btn-register" onclick="showToast('Registered for UX Design Workshop!', 'success')">Register Now</button>
+        </div>
+      </div>
+
+      <div class="sts-upcoming-event-card">
+        <div class="sts-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&auto=format&fit=crop" alt="Sports Day">
+          <span class="sts-card-badge sports">Sports</span>
+        </div>
+        <div class="sts-upcoming-event-intro">
+          <div class="sts-upcomming-wrapper">
+            <span class="ev-name">Annual Sports Day 2024</span>
+            <div class="ev-meta"><i class="fa-regular fa-calendar"></i><span>Nov 10</span><span class="ev-sep">•</span><span>8:00 AM</span></div>
+            <div class="ev-meta"><i class="fa-solid fa-location-dot"></i><span>University Sports Ground</span></div>
+            <p class="ev-desc">Compete across 12 sports disciplines, from athletics to team events. Open to all enrolled students.</p>
+          </div>
+          <button class="btn-register" onclick="showToast('Registered for Sports Day!', 'success')">Register Now</button>
+        </div>
+      </div>
+
+      <div class="sts-upcoming-event-card">
+        <div class="sts-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&auto=format&fit=crop" alt="Hackathon">
+          <span class="sts-card-badge tech">Tech</span>
+        </div>
+        <div class="sts-upcoming-event-intro">
+          <div class="sts-upcomming-wrapper">
+            <span class="ev-name">48-Hour Hackathon: Build for Impact</span>
+            <div class="ev-meta"><i class="fa-regular fa-calendar"></i><span>Nov 15</span><span class="ev-sep">•</span><span>9:00 AM</span></div>
+            <div class="ev-meta"><i class="fa-solid fa-location-dot"></i><span>Innovation Hub, Block C</span></div>
+            <p class="ev-desc">Build real-world solutions in 48 hours. Cash prizes, mentorship from industry experts, and networking opportunities.</p>
+          </div>
+          <button class="btn-register" onclick="showToast('Registered for Hackathon!', 'success')">Register Now</button>
+        </div>
+      </div>
+
+      <div class="sts-upcoming-event-card">
+        <div class="sts-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1560523159-4a9692d222ef?w=600&auto=format&fit=crop" alt="Career Fair">
+          <span class="sts-card-badge default">Career</span>
+        </div>
+        <div class="sts-upcoming-event-intro">
+          <div class="sts-upcomming-wrapper">
+            <span class="ev-name">Career Fair 2024</span>
+            <div class="ev-meta"><i class="fa-regular fa-calendar"></i><span>Nov 20</span><span class="ev-sep">•</span><span>11:00 AM</span></div>
+            <div class="ev-meta"><i class="fa-solid fa-location-dot"></i><span>Convention Hall</span></div>
+            <p class="ev-desc">Meet 60+ top companies, attend on-spot interviews, and kickstart your professional journey from campus.</p>
+          </div>
+          <button class="btn-register" onclick="showToast('Registered for Career Fair!', 'success')">Register Now</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="fotter-wrapper">
+      <div class="footer-intro">
+        <span>Eventhub</span>
+        <p>Eventhub is a platform for students to find and register for events across campus.</p>
+      </div>
+      <div class="footer-links">
+        <ul>
+          <li><a href="#" onclick="student_page('home'); return false;">Home</a></li>
+          <li><a href="#" onclick="student_page('events'); return false;">Events</a></li>
+          <li><a href="#" onclick="student_page('registered'); return false;">Registered</a></li>
+          <li><a href="#" onclick="student_page('profile'); return false;">Profile</a></li>
+        </ul>
+      </div>
+      <div class="footer-support">
+        <ul>
+          <li><a href="#">Help</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div class="fotter-email">
+        <span>Newsletter</span>
+        <p>Get the latest updates on events</p>
+        <div class="fotter-email-input">
+          <input type="email" placeholder="Enter your email">
+          <button onclick="showToast('Subscribed successfully!', 'success')"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Copyright &copy; 2026 Eventhub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="../js/student.js"></script>
+
+</body>
+</html>

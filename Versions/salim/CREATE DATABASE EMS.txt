@@ -1,0 +1,72 @@
+CREATE DATABASE EMS;
+
+USE EMS;
+
+-- Events Table
+CREATE TABLE events (
+    event_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    date DATE NOT NULL,
+    location VARCHAR(100) NOT NULL,
+    description TEXT
+);
+
+-- Users Table
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
+
+-- Registrations Table
+CREATE TABLE registrations (
+    reg_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    event_id INT,
+    
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (event_id) REFERENCES events(event_id),
+    
+    UNIQUE (user_id, event_id)
+);
+
+
+###########################################
+
+INSERT INTO users (name, email, password) VALUES
+('Ram Sharma', 'ram@gmail.com', '1234'),
+('Sita Karki', 'sita@gmail.com', '1234'),
+('Hari Thapa', 'hari@gmail.com', '1234');
+
+INSERT INTO events (title, date, location, description) VALUES
+('Tech Seminar', '2026-04-10', 'Kathmandu', 'Seminar on latest technology'),
+('Sports Meet', '2026-04-15', 'Pokhara', 'College sports event'),
+('Workshop on AI', '2026-04-20', 'Lalitpur', 'AI and Machine Learning workshop');
+
+INSERT INTO registrations (user_id, event_id) VALUES
+(1, 1),
+(2, 1),
+(1, 2),
+(3, 3);
+
+-- to check data
+SELECT * FROM users;
+SELECT * FROM events;
+SELECT * FROM registrations;
+
+-- to check joint
+SELECT users.name, events.title
+FROM registrations
+JOIN users ON registrations.user_id = users.user_id
+JOIN events ON registrations.event_id = events.event_id;
+
+###########################################
+CREATE TABLE admin (
+    admin_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50),
+    password VARCHAR(50)
+);
+
+INSERT INTO admin (username, password)
+VALUES ('salim@gmail.com', '1234');

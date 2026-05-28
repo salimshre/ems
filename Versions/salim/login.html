@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-bg">
+
+<div class="login-container">
+
+    <h2 class="logo">EventHub</h2>
+    <p class="subtitle">Access your dashboard</p>
+
+    <!-- ROLE SWITCH -->
+    <div class="role-switch">
+        <button class="active" onclick="setRole('user')">Student</button>
+        <button onclick="setRole('admin')">Admin</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form action="login.php" method="POST">
+        <!-- EMAIL -->
+        <input type="email" name="email" id="email" placeholder="Email / Username" required>
+
+        <!-- PASSWORD -->
+        <input type="password" name="password" id="password" placeholder="Password" required>
+
+        <!-- HIDDEN ROLE INPUT -->
+        <input type="hidden" name="role" id="role" value="user">
+
+        <div class="forgot">
+            <a href="#">Forgot password?</a>
+        </div>
+
+        <!-- LOGIN BUTTON -->
+        <button class="login-btn" type="submit">Login →</button>
+    </form>   
+
+    <p class="register-text">
+        Don’t have an account? <a href="signup.html">Register</a>
+    </p>
+
+</div>
+
+<!-- SCRIPT TO SWITCH ROLE -->
+<script>
+function setRole(role){
+    document.getElementById('role').value = role; // update hidden input
+    let buttons = document.querySelectorAll(".role-switch button");
+    buttons.forEach(btn => btn.classList.remove("active"));
+    event.target.classList.add("active");
+}
+</script>
+
+</body>
+</html>
+--->

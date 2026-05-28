@@ -1,0 +1,196 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - EventHub</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="login-bg">
+
+<div class="register-container">
+
+    <h2 class="logo">EventHub</h2>
+    <p class="subtitle">Create your account</p>
+
+    <form method="POST">
+
+    <!-- BASIC INFO -->
+    <div class="form-section">
+        <p class="section-title">Basic Information</p>
+
+        Name:
+        <div class="input-box">
+            <i class="fa fa-user"></i>
+            <input type="text" name="name" requried placeholder="Full Name">
+        </div>
+
+
+        Email:
+        <div class="input-box">
+            <i class="fa fa-envelope"></i>
+            <input type="email" name="email" required placeholder="Email">
+        </div>
+
+
+        Password:
+        <div class="input-box">
+            <i class="fa fa-lock"></i>
+            <input type="password" name="password" required placeholder="Password">
+        </div>
+    </div>
+
+    <br>
+
+    <!-- ROLE -->
+    <div class="form-section">
+        <p class="section-title">Select Role</p>
+
+        <select id="role" onchange="showRoleFields(this.value)">
+            <option value="user">Student</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
+
+    <br>
+
+    <!-- STUDENT -->
+    <div id="studentFields" class="role-fields">
+        <div class="form-section">
+            <p class="section-title">Student Details</p>
+
+            Phone:
+            <div class="input-box">
+                <i class="fa fa-phone"></i>
+                <input type="text" name="userContact" placeholder="Contact Number">
+            </div>
+
+            <select id="faculty">
+                <option value="">Faculty</option>
+                <option value="civil">Civil</option>
+                <option value="computer">Computer</option>
+                <option value="other">Other</option>
+            </select>
+
+            <select id="semester">
+                <option value="">Semester</option>
+                <option value="i">I</option>
+                <option value="ii">II</option>
+                <option value="iii">III</option>
+                <option value="iv">IV</option>
+                <option value="v">V</option>
+                <option value="vi">VI</option>
+                <option value="vii">VII</option>
+                <option value="viii">VIII</option>
+            </select>
+
+            <select id="college">
+                <option value="">College</option>
+                <option value="kantipur">Kantipur City College</option>
+                <option value="other">Other</option>
+            </select>
+
+            <div class="input-box">
+                <i class="fa fa-university"></i>
+                <input type="text" name="university" placeholder="University">
+            </div>
+
+            <div class="input-box">
+                <i class="fa fa-location-dot"></i>
+                <input type="text" name="location" placeholder="City / Location">
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="adminFields" class="role-fields">
+        <div class="form-section">
+            <p class="section-title">Admin Details</p>
+
+            Admin Id:
+            <div class="input-box">
+                <i class="fa fa-id-card"></i>
+                <input type="text" name="adminID" placeholder="Admin ID">
+            </div>
+
+            Department:
+            <div class="input-box">
+                <i class="fa fa-building"></i>
+                <input type="text" name="Department" placeholder="Department">
+            </div>
+
+
+            Contact:
+            <div class="input-box">
+                <i class="fa fa-phone"></i>
+                <input type="text" name="adminContact" placeholder="Contact Number">
+            </div>
+
+
+            Location:
+            <div class="input-box">
+                <i class="fa fa-location-dot"></i>
+                <input type="text" name="officeLocation" placeholder="Office Location">
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <!-- BUTTON -->
+    <button class="login-btn" onclick="register()">Create Account</button>
+
+    </form>
+
+    <p class="register-text">
+        Already have an account? <a href="login.html">Login</a>
+    </p>
+
+</div>
+
+<script>
+function showRoleFields(role) {
+    document.getElementById("studentFields").style.display = role === "user" ? "block" : "none";
+    document.getElementById("adminFields").style.display = role === "admin" ? "block" : "none";
+}
+showRoleFields(document.getElementById("role").value);
+
+function register(){
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let role = document.getElementById("role").value;
+
+    let user = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        role: role
+    };
+
+    if(role === "user") {
+        user.contact = document.getElementById("contact").value;
+        user.faculty = document.getElementById("faculty").value;
+        user.semester = document.getElementById("semester").value;
+        user.college = document.getElementById("college").value;
+        user.university = document.getElementById("university").value;
+        user.location = document.getElementById("location").value;
+    } else {
+        user.adminID = document.getElementById("adminID").value;
+        user.adminDept = document.getElementById("adminDept").value;
+        user.adminContact = document.getElementById("adminContact").value;
+        user.officeLocation = document.getElementById("officeLocation").value;
+    }
+
+    users.push(user);
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Registered Successfully!");
+    window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>

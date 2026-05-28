@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-bg">
+
+<div class="login-container">
+
+    <h2 class="logo">EventHub</h2>
+    <p class="subtitle">Access your dashboard</p>
+
+    <!-- ROLE SWITCH -->
+    <div class="role-switch">
+        <button class="active" onclick="setRole('user')">Student</button>
+        <button onclick="setRole('admin')">Admin</button>
+    </div>
+
+    <!-- EMAIL -->
+    <input type="email" id="email" placeholder="Email / Username">
+
+    <!-- PASSWORD -->
+    <input type="password" id="password" placeholder="Password">
+
+    <div class="forgot">
+        <a href="#">Forgot password?</a>
+    </div>
+
+    <!-- LOGIN BUTTON -->
+    <button class="login-btn" onclick="login()">Login →</button>
+
+    <p class="register-text">
+        Don’t have an account? <a href="register.html">Register</a>
+    </p>
+
+</div>
+
+<script>
+let selectedRole = "user";
+
+function setRole(role){
+    selectedRole = role;
+
+    let buttons = document.querySelectorAll(".role-switch button");
+    buttons.forEach(btn => btn.classList.remove("active"));
+
+    event.target.classList.add("active");
+}
+
+function login(){
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+
+    let user = users.find(u => 
+        u.email === email && 
+        u.password === password &&
+        u.role === selectedRole
+    );
+
+    if(user){
+        localStorage.setItem("currentUser", JSON.stringify(user));
+
+        if(user.role === "admin"){
+            window.location.href = "admin.html";
+        } else {
+            window.location.href = "user.html";
+        }
+    } else {
+        alert("Invalid credentials or role!");
+    }
+}
+</script>
+
+</body>
+</html>

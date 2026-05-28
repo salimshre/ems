@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - College Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/college.css">
+
+</head>
+
+<body>
+
+    <header class="admin-header">
+        <div style="display: flex; align-items: center;">
+            <span class="logo">EventHub</span>
+            <span class="admin-badge">Admin Portal</span>
+        </div>
+        <nav>
+            <ul>
+                <li><button class="nav-btn active" onclick="showAdminPage('overview')"
+                        id="nav-overview">Overview</button></li>
+                <li><button class="nav-btn" onclick="showAdminPage('events')" id="nav-events">Manage Events</button>
+                </li>
+                <li><button class="nav-btn" onclick="showAdminPage('registrations')"
+                        id="nav-registrations">Registrations</button></li>
+                <li><button class="nav-btn" onclick="showAdminPage('venues')" id="nav-venues">Venues</button></li>
+            </ul>
+        </nav>
+        <div class="header-right">
+            <div class="admin-info">
+                <div class="admin-avatar">A</div>
+                <span style="font-weight: 600;">Admin</span>
+            </div>
+            <a href="#" class="logout-link" onclick="showToast('Logged out successfully', 'success'); return false;"><i
+                    class="fa-solid fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- OVERVIEW PAGE -->
+        <div id="page-overview" class="admin-page active">
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-left">
+                        <h3 id="totalEvents">0</h3>
+                        <p>Total Events</p>
+                    </div>
+                    <div class="stat-icon"><i class="fa-regular fa-calendar"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-left">
+                        <h3 id="totalRegistrations">0</h3>
+                        <p>Total Registrations</p>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-left">
+                        <h3 id="upcomingEvents">0</h3>
+                        <p>Upcoming Events</p>
+                    </div>
+                    <div class="stat-icon"><i class="fa-regular fa-clock"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-left">
+                        <h3 id="totalVenues">0</h3>
+                        <p>Active Venues</p>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-location-dot"></i></div>
+                </div>
+            </div>
+            <div class="section-header">
+                <h2>Recent Events</h2><button class="btn-outline" onclick="showAdminPage('events')">View All <i
+                        class="fa-solid fa-arrow-right"></i></button>
+            </div>
+            <div class="data-table-wrapper">
+                <table class="data-table" id="recentEventsTable">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Registrations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentEventsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MANAGE EVENTS PAGE -->
+        <div id="page-events" class="admin-page">
+            <div class="section-header">
+                <h2><i class="fa-regular fa-calendar-plus"></i> All Events</h2><button class="btn-primary"
+                    onclick="openEventModal()"><i class="fa-solid fa-plus"></i> Create Event</button>
+            </div>
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Venue</th>
+                            <th>Category</th>
+                            <th>Capacity</th>
+                            <th>Registered</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REGISTRATIONS PAGE -->
+        <div id="page-registrations" class="admin-page">
+            <div class="section-header">
+                <h2><i class="fa-solid fa-list-check"></i> Student Registrations</h2>
+                <div><input type="text" id="searchReg" placeholder="Search by student or event..."
+                        style="padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; width: 240px;">
+                </div>
+            </div>
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Event</th>
+                            <th>Registration Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registrationsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VENUES PAGE -->
+        <div id="page-venues" class="admin-page">
+            <div class="section-header">
+                <h2><i class="fa-solid fa-building"></i> Campus Venues</h2><button class="btn-primary"
+                    onclick="openVenueModal()"><i class="fa-solid fa-plus"></i> Add Venue</button>
+            </div>
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Venue Name</th>
+                            <th>Capacity</th>
+                            <th>Location</th>
+                            <th>Facilities</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="venuesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-wrapper">
+            <div><span class="logo" style="font-size:1rem;">EventHub Admin</span>
+                <p style="color:var(--text-mid); font-size:0.8rem; margin-top:8px;">College Event Management System</p>
+            </div>
+            <div>
+                <ul style="list-style:none;">
+                    <li>Dashboard</li>
+                    <li>Events</li>
+                    <li>Reports</li>
+                </ul>
+            </div>
+            <div>
+                <ul style="list-style:none;">
+                    <li>Support</li>
+                    <li>Privacy</li>
+                </ul>
+            </div>
+            <div><span>© 2026 EventHub</span></div>
+        </div>
+        <div class="footer-bottom">
+            <p>Admin Dashboard — Manage college events seamlessly</p>
+        </div>
+    </footer>
+
+    <div id="eventModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create / Edit Event</h3><button class="modal-close" onclick="closeEventModal()"><i
+                        class="fa-solid fa-times"></i></button>
+            </div>
+            <form id="eventForm"><input type="hidden" id="eventId">
+                <div class="form-group"><label>Event Title</label><input type="text" id="eventTitle" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Date</label><input type="date" id="eventDate" required></div>
+                    <div class="form-group"><label>Time</label><input type="text" id="eventTime" placeholder="10:00 AM"
+                            required></div>
+                </div>
+                <div class="form-group"><label>Venue</label><input type="text" id="eventVenue" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Category</label><select id="eventCategory">
+                            <option>Tech</option>
+                            <option>Cultural</option>
+                            <option>Workshop</option>
+                            <option>Sports</option>
+                            <option>Academic</option>
+                        </select></div>
+                    <div class="form-group"><label>Capacity</label><input type="number" id="eventCapacity" value="100"
+                            required></div>
+                </div>
+                <div class="form-group"><label>Description</label><textarea id="eventDesc" rows="3"
+                        placeholder="Event description..."></textarea></div>
+                <div class="modal-actions"><button type="button" class="btn-outline"
+                        onclick="closeEventModal()">Cancel</button><button type="submit" class="btn-primary">Save
+                        Event</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="venueModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add / Edit Venue</h3><button class="modal-close" onclick="closeVenueModal()"><i
+                        class="fa-solid fa-times"></i></button>
+            </div>
+            <form id="venueForm"><input type="hidden" id="venueId">
+                <div class="form-group"><label>Venue Name</label><input type="text" id="venueName" required></div>
+                <div class="form-group"><label>Capacity</label><input type="number" id="venueCapacity" required></div>
+                <div class="form-group"><label>Location</label><input type="text" id="venueLocation" required></div>
+                <div class="form-group"><label>Facilities</label><input type="text" id="venueFacilities"
+                        placeholder="Projector, AC, etc"></div>
+                <div class="modal-actions"><button type="button" class="btn-outline"
+                        onclick="closeVenueModal()">Cancel</button><button type="submit" class="btn-primary">Save
+                        Venue</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+</body>
+
+<script src="../js/college.js"></script>
+
+</html>

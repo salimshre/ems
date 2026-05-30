@@ -73,7 +73,7 @@ function handleLogin() {
         $_SESSION['username']   = $row['name'];
         $_SESSION['role']       = 'admin';
         respond(true, 'Login successful.', [
-            'redirect' => '/codefeat/asset/pages/admin.html',
+            'redirect' => '/ems/asset/pages/admin.html',
             'user' => ['id' => $row['id'], 'name' => $row['full_name'] ?? $row['name'], 'role' => 'admin']
         ]);
     } else {
@@ -82,7 +82,7 @@ function handleLogin() {
         $_SESSION['user_email'] = $row['email'];
         $_SESSION['role']      = 'user';
         respond(true, 'Login successful.', [
-            'redirect' => '/codefeat/asset/pages/student.html',
+            'redirect' => '/ems/asset/pages/student.html',
             'user' => ['id' => $row['id'], 'name' => $row['name'], 'email' => $row['email'], 'role' => 'user']
         ]);
     }
@@ -165,7 +165,7 @@ function handleSignup() {
 
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
-        respond(true, 'Account created successfully!', ['redirect' => '/codefeat/asset/pages/login.html']);
+        respond(true, 'Account created successfully!', ['redirect' => '/ems/asset/pages/login.html']);
     } else {
         $err = mysqli_stmt_error($stmt);
         mysqli_stmt_close($stmt);
@@ -178,7 +178,7 @@ function handleSignup() {
 // ══════════════════════════════════════════════════════════
 function handleLogout() {
     session_destroy();
-    respond(true, 'Logged out successfully', ['redirect' => '/codefeat/asset/pages/login.html']);
+    respond(true, 'Logged out successfully', ['redirect' => '/ems/asset/pages/login.html']);
 }
 
 // ══════════════════════════════════════════════════════════

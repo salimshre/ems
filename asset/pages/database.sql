@@ -79,13 +79,13 @@ CREATE TABLE IF NOT EXISTS registrations (
 
 -- Insert sample admin (password: admin123)
 INSERT INTO admin (username, password, name, department, contact, office_location, admin_code) 
-VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 'Admin Office', '1234567890', 'Admin Block', 'ADMIN001');
+VALUES ('admin', '$2y$10$AQFY9pbaFSfCFWIud.yl1eAn.uzU3/SZl611KzxVr.f5e44Ij3UjW', 'Administrator', 'Admin Office', '1234567890', 'Admin Block', 'ADMIN001');
 
 -- Insert sample users (password: password123 for all)
 INSERT INTO users (name, email, password, contact, faculty, semester, college, university, location) VALUES
-('Aarav Sharma', 'aarav@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '9812345678', 'Computer Engineering', '6th', 'Kantipur City College', 'Purwanchal University', 'Kathmandu'),
-('Priya Thapa', 'priya@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '9823456789', 'Civil Engineering', '4th', 'Pulchowk Campus', 'Tribhuvan University', 'Lalitpur'),
-('Rohan Bista', 'rohan@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '9834567890', 'Electrical Engineering', '8th', 'Thapathali Campus', 'Tribhuvan University', 'Kathmandu');
+('Aarav Sharma', 'aarav@example.com', '$2y$10$AJr6vJDYZ7JSkFvcLfn7leo44QPAScztBR7nZ3mPDWfAbqdmqyXli', '9812345678', 'Computer Engineering', '6th', 'Kantipur City College', 'Purwanchal University', 'Kathmandu'),
+('Priya Thapa', 'priya@example.com', '$2y$10$AJr6vJDYZ7JSkFvcLfn7leo44QPAScztBR7nZ3mPDWfAbqdmqyXli', '9823456789', 'Civil Engineering', '4th', 'Pulchowk Campus', 'Tribhuvan University', 'Lalitpur'),
+('Rohan Bista', 'rohan@example.com', '$2y$10$AJr6vJDYZ7JSkFvcLfn7leo44QPAScztBR7nZ3mPDWfAbqdmqyXli', '9834567890', 'Electrical Engineering', '8th', 'Thapathali Campus', 'Tribhuvan University', 'Kathmandu');
 
 -- Insert sample venues
 INSERT INTO venues (name, capacity, location, facilities) VALUES

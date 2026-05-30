@@ -281,7 +281,7 @@ function renderRegisteredEvents(registrationsList) {
       </div>
       <div class="register-card-button">
         <button class="register-card-button-1" onclick="viewEventDetails(${Number(reg.event_id)})">View Details</button>
-        ${reg.status === 'confirmed' ? `<button class="register-card-button-2" onclick="cancelRegistration(${Number(reg.registration_id)})">Cancel Registration</button>` : ''}
+        ${reg.status !== 'cancelled' ? `<button class="register-card-button-2" onclick="cancelRegistration(${Number(reg.registration_id)})">Cancel Registration</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -314,6 +314,7 @@ function renderProfile(profile) {
   // Update profile name
   const profileNameElement = document.querySelector('.sts-profile-intro span:first-child');
   if (profileNameElement) profileNameElement.textContent = profile.name;
+  updateProfileImage(profile.profile_image, profile.name);
   
   // Update profile fields
   const fields = {
@@ -338,8 +339,51 @@ function renderProfile(profile) {
   }
   
   // Update welcome message
+  updateWelcomeName(profile.name);
+}
+
+function updateWelcomeName(name) {
   const welcomeSpan = document.querySelector('.sts-intro-text span');
-  if (welcomeSpan) welcomeSpan.textContent = `Welcome, ${profile.name}`;
+  if (welcomeSpan) welcomeSpan.textContent = `Welcome, ${name || 'Student'}`;
+}
+
+function updateProfileImage(src, name = 'Student') {
+  const img = document.getElementById('studentProfileImage');
+  if (!img) return;
+  img.src = safeProfileImageSrc(src, `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'Student')}&background=24389c&color=fff`);
+}
+
+function safeProfileImageSrc(src, fallback) {
+  const value = String(src || '').trim();
+  if (!value) return fallback;
+  if (/^\.\.\/uploads\/profiles\/[a-f0-9]+\.(jpg|png|webp|gif)$/i.test(value) || /^https?:\/\//i.test(value)) {
+    return value;
+  }
+  return fallback;
+}
+
+async function uploadProfileImage(file) {
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Image must be under 5MB', 'error');
+    return;
+  }
+  if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+    showToast('Use JPG, PNG, WEBP, or GIF images only', 'error');
+    return;
+  }
+
+  const response = await apiCall('profile.php', {
+    action: 'update_image',
+    profile_image: file
+  });
+
+  if (response && response.success) {
+    updateProfileImage(response.profile_image, currentUser?.name);
+    showToast('Profile picture updated', 'success');
+  } else {
+    showToast(response?.message || 'Could not update profile picture', 'error');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -521,6 +565,8 @@ async function checkLoginStatus() {
     
     currentUser = data.user;
     csrfToken = data.csrf_token || '';
+    updateWelcomeName(currentUser?.name);
+    updateProfileImage('', currentUser?.name);
     return true;
   } catch (error) {
     console.error('Session check error:', error);
@@ -552,7 +598,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   if (!loggedIn) return;
   
   // Set up logout link
-  const logoutLink = document.querySelector('header a[href="#"]');
+  const logoutLink = document.getElementById('studentLogout');
   if (logoutLink) {
     logoutLink.onclick = (e) => {
       e.preventDefault();
@@ -580,5 +626,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     } else {
       showToast(response?.message || 'Could not update password', 'error');
     }
+  });
+
+  const profileImageButton = document.getElementById('profileImageButton');
+  const profileImageTextButton = document.getElementById('profileImageTextButton');
+  const profileImageInput = document.getElementById('profileImageInput');
+  profileImageButton?.addEventListener('click', () => profileImageInput?.click());
+  profileImageTextButton?.addEventListener('click', () => profileImageInput?.click());
+  profileImageInput?.addEventListener('change', function() {
+    uploadProfileImage(this.files?.[0]);
+    this.value = '';
   });
 });

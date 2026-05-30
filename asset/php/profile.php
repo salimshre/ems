@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/security.php';
+require_once __DIR__ . '/config/upload.php';
 
 if (!isset($_SESSION['role'])) {
     respond(false, 'Unauthorized', [], 401);
@@ -13,6 +14,7 @@ match ($action) {
     'get'    => getProfile(),
     'update' => updateProfile(),
     'change_password' => changePassword(),
+    'update_image' => updateProfileImage(),
     default  => respond(false, 'Invalid action')
 };
 
@@ -29,7 +31,7 @@ function getProfile() {
     } else {
         $conn = getConn();
         $stmt = mysqli_prepare($conn,
-            "SELECT user_id, name, email, contact, faculty, semester, college, university, location FROM users WHERE user_id = ?");
+            "SELECT user_id, name, email, contact, faculty, semester, college, university, location, profile_image FROM users WHERE user_id = ?");
         mysqli_stmt_bind_param($stmt, 'i', $userId);
     }
 
@@ -85,6 +87,42 @@ function updateProfile() {
     } else {
         respond(false, 'Failed to update profile');
     }
+}
+
+function updateProfileImage() {
+    require_post();
+    require_csrf();
+
+    if ($_SESSION['role'] !== 'user') {
+        respond(false, 'Only students can update profile pictures', [], 403);
+    }
+
+    $userId = $_SESSION['user_id'] ?? 0;
+    if (!$userId) respond(false, 'Please login as a student first', [], 401);
+
+    $conn = getConn();
+    $stmt = mysqli_prepare($conn, "SELECT profile_image FROM users WHERE user_id = ?");
+    mysqli_stmt_bind_param($stmt, 'i', $userId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+
+    $image = save_profile_image('profile_image', $row['profile_image'] ?? '');
+    if (!$image) {
+        respond(false, 'Please choose an image to upload', [], 400);
+    }
+
+    $stmt = mysqli_prepare($conn, "UPDATE users SET profile_image = ? WHERE user_id = ?");
+    mysqli_stmt_bind_param($stmt, 'si', $image, $userId);
+
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        respond(true, 'Profile picture updated', ['profile_image' => $image]);
+    }
+
+    mysqli_stmt_close($stmt);
+    respond(false, 'Failed to update profile picture', [], 500);
 }
 
 function changePassword() {

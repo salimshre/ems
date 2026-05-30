@@ -55,7 +55,7 @@
             <p class="section-title"><i class="fa fa-id-badge"></i> Select Role</p>
             <div class="role-switch">
                 <button type="button" class="active" onclick="setRole('user', this)">Student</button>
-                <button type="button" disabled title="Admin accounts must be created by an existing admin">Admin</button>
+                <button type="button" onclick="setRole('admin', this)">Admin</button>
             </div>
         </div>
 
@@ -126,7 +126,7 @@
 
                 <div class="input-box">
                     <i class="fa fa-id-card"></i>
-                    <input type="text" name="adminID" id="adminID" placeholder="Admin ID / Code">
+                    <input type="text" name="adminID" id="adminID" placeholder="Admin signup code">
                 </div>
 
                 <div class="input-box">

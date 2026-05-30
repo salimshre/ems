@@ -244,9 +244,53 @@
                 <p>Join hundreds of college clubs using EventHub to manage registrations effortlessly.</p>
             </div>
             <div class="cta-buttons">
-                <button>Get Started Now</button>
-                <button>Contact Us</button>
+                <button onclick="window.location.href='asset/pages/login.html'">Get Started Now</button>
+                <button onclick="window.location.href='#contact'">Contact Us</button>
             </div>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact">
+        <div class="contact-wrapper">
+            <div class="contact-intro">
+                <span>Contact</span>
+                <h2>Need help with campus events?</h2>
+                <p>Reach the EventHub team for event setup, venue coordination, student registration support, or demo access.</p>
+                <div class="contact-methods">
+                    <div>
+                        <i class="fa fa-envelope"></i>
+                        <span>support@eventhub.local</span>
+                    </div>
+                    <div>
+                        <i class="fa fa-location-dot"></i>
+                        <span>Admin Block, Campus Office</span>
+                    </div>
+                    <div>
+                        <i class="fa fa-clock"></i>
+                        <span>Sunday-Friday, 9:00 AM-5:00 PM</span>
+                    </div>
+                </div>
+            </div>
+            <form class="contact-form" onsubmit="event.preventDefault(); this.reset(); alert('Thanks. We will contact you soon.');">
+                <div>
+                    <label for="contactName">Name</label>
+                    <input type="text" id="contactName" required>
+                </div>
+                <div>
+                    <label for="contactEmail">Email</label>
+                    <input type="email" id="contactEmail" required>
+                </div>
+                <div>
+                    <label for="contactSubject">Subject</label>
+                    <input type="text" id="contactSubject" required>
+                </div>
+                <div>
+                    <label for="contactMessage">Message</label>
+                    <textarea id="contactMessage" rows="5" required></textarea>
+                </div>
+                <button type="submit">Send Message</button>
+            </form>
         </div>
     </section>
 
@@ -265,7 +309,7 @@
             <div class="flex flex-col gap-4">
                 <h3 class="font-bold text-white text-base">Quick Links</h3>
                 <a href="#" class="footer-links">About</a>
-                <a href="#" class="footer-links">Contact</a>
+                <a href="#contact" class="footer-links">Contact</a>
                 <a href="#" class="footer-links">Tech Stack</a>
             </div>
 

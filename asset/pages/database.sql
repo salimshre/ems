@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     college VARCHAR(100),
     university VARCHAR(100),
     location VARCHAR(100),
+    profile_image TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

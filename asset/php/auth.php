@@ -110,10 +110,12 @@ function handleSignup() {
     $conn = getConn();
 
     if ($role === 'admin') {
-        if (($_SESSION['role'] ?? '') !== 'admin') {
-            respond(false, 'Only an existing admin can create another admin account.', [], 403);
+        $adminID = trim($_POST['adminID'] ?? '');
+        $signupCode = getenv('EMS_ADMIN_SIGNUP_CODE') ?: 'ADMIN001';
+
+        if (!$adminID || !hash_equals($signupCode, $adminID)) {
+            respond(false, 'Invalid admin signup code.', [], 403);
         }
-        require_csrf();
 
         // ── Check duplicate admin username ──
         $chk = mysqli_prepare($conn, "SELECT admin_id FROM admin WHERE username = ? LIMIT 1");
@@ -129,8 +131,6 @@ function handleSignup() {
         $dept          = trim($_POST['adminDept']      ?? '');
         $contact       = trim($_POST['adminContact']   ?? '');
         $officeLocation = trim($_POST['officeLocation'] ?? '');
-        $adminID       = trim($_POST['adminID']        ?? '');
-
         $hash = password_hash($password, PASSWORD_BCRYPT);
         $stmt = mysqli_prepare($conn,
             "INSERT INTO admin (username, password, name, department, contact, office_location, admin_code)

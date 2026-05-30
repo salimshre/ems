@@ -1,6 +1,14 @@
 <?php
 function save_uploaded_image(string $fieldName, string $existing = ''): string {
-    $existing = safe_existing_image_path($existing);
+    return save_image_to_directory($fieldName, 'events', $existing);
+}
+
+function save_profile_image(string $fieldName, string $existing = ''): string {
+    return save_image_to_directory($fieldName, 'profiles', $existing);
+}
+
+function save_image_to_directory(string $fieldName, string $folder, string $existing = ''): string {
+    $existing = safe_existing_image_path($existing, $folder);
 
     if (empty($_FILES[$fieldName]) || $_FILES[$fieldName]['error'] === UPLOAD_ERR_NO_FILE) {
         return $existing;
@@ -32,7 +40,7 @@ function save_uploaded_image(string $fieldName, string $existing = ''): string {
         respond(false, 'Only JPG, PNG, WEBP, and GIF images are allowed.', [], 400);
     }
 
-    $uploadDir = dirname(__DIR__, 2) . '/uploads/events';
+    $uploadDir = dirname(__DIR__, 2) . '/uploads/' . $folder;
     if (!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true)) {
         respond(false, 'Could not create upload directory.', [], 500);
     }
@@ -44,10 +52,10 @@ function save_uploaded_image(string $fieldName, string $existing = ''): string {
         respond(false, 'Could not save uploaded image.', [], 500);
     }
 
-    return '../uploads/events/' . $fileName;
+    return '../uploads/' . $folder . '/' . $fileName;
 }
 
-function safe_existing_image_path(string $path): string {
+function safe_existing_image_path(string $path, string $folder = 'events'): string {
     $path = trim($path);
     if ($path === '') {
         return '';
@@ -55,7 +63,8 @@ function safe_existing_image_path(string $path): string {
     if (preg_match('/^https?:\/\/[^\s"]+$/i', $path)) {
         return $path;
     }
-    if (preg_match('/^\.\.\/uploads\/events\/[a-f0-9]+\.(jpg|png|webp|gif)$/i', $path)) {
+    $pattern = '/^\.\.\/uploads\/' . preg_quote($folder, '/') . '\/[a-f0-9]+\.(jpg|png|webp|gif)$/i';
+    if (preg_match($pattern, $path)) {
         return $path;
     }
     return '';

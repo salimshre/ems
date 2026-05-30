@@ -187,6 +187,7 @@ function renderUpcomingEvents(eventsList) {
           </div>
         </div>
         <button class="btn-register" onclick="registerForEvent(${Number(event.event_id)}, this)">Register Now</button>
+        <button class="btn-register" onclick="viewEventDetails(${Number(event.event_id)})">Details</button>
       </div>
     </div>
   `).join('');
@@ -242,6 +243,7 @@ function renderAllEvents(eventsList) {
           </div>
         </div>
         <button class="btn-register" onclick="registerForEvent(${Number(event.event_id)}, this)">Register Now</button>
+        <button class="btn-register" onclick="viewEventDetails(${Number(event.event_id)})">Details</button>
       </div>
     </div>
   `).join('');
@@ -390,8 +392,54 @@ async function cancelRegistration(registrationId) {
 }
 
 function viewEventDetails(eventId) {
-  // Implement event details modal
-  showToast('Event details coming soon', '');
+  loadEventDetails(eventId);
+}
+
+async function loadEventDetails(eventId) {
+  try {
+    const response = await fetch(API_BASE + `events.php?action=get&id=${encodeURIComponent(eventId)}`);
+    const data = await response.json();
+    if (!data.success || !data.event) {
+      showToast(data.message || 'Event not found', 'error');
+      return;
+    }
+    showEventDetailsModal(data.event);
+  } catch (error) {
+    showToast('Could not load event details', 'error');
+  }
+}
+
+function showEventDetailsModal(event) {
+  let modal = document.getElementById('eventDetailsModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'eventDetailsModal';
+    modal.className = 'event-details-modal';
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div class="event-details-panel">
+      <button class="event-details-close" type="button" onclick="closeEventDetailsModal()">&times;</button>
+      <img src="${safeImageSrc(event.image_url, 'https://via.placeholder.com/800x420?text=Event')}" alt="${escapeAttr(event.title)}">
+      <div class="event-details-content">
+        <span class="event-details-badge">${escapeHtml(event.category)}</span>
+        <h3>${escapeHtml(event.title)}</h3>
+        <p>${escapeHtml(event.description || 'No description available')}</p>
+        <div class="event-details-grid">
+          <span><i class="fa-regular fa-calendar"></i>${formatDate(event.date)}</span>
+          <span><i class="fa-regular fa-clock"></i>${escapeHtml(event.time)}</span>
+          <span><i class="fa-solid fa-location-dot"></i>${escapeHtml(event.venue)}</span>
+          <span><i class="fa-solid fa-users"></i>${Number(event.confirmed_registrations || 0)} / ${Number(event.capacity || 0)} registered</span>
+        </div>
+      </div>
+    </div>
+  `;
+  modal.classList.add('active');
+}
+
+function closeEventDetailsModal() {
+  document.getElementById('eventDetailsModal')?.classList.remove('active');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -421,9 +469,9 @@ function safeClass(text) {
 function safeImageSrc(src, fallback) {
   const value = String(src || '').trim();
   if (!value) return fallback;
-  if (/^https?:\/\//i.test(value) || /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value)) {
-    return escapeAttr(value);
-  }
+    if (/^https?:\/\//i.test(value) || /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value) || /^\.\.\/uploads\/events\/[a-f0-9]+\.(jpg|png|webp|gif)$/i.test(value)) {
+        return escapeAttr(value);
+    }
   return fallback;
 }
 
@@ -517,4 +565,20 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   // Init search
   initSearch();
+
+  document.getElementById('passwordForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const response = await apiCall('profile.php', {
+      action: 'change_password',
+      current_password: document.getElementById('currentPassword').value,
+      new_password: document.getElementById('newPassword').value
+    });
+
+    if (response && response.success) {
+      showToast('Password updated', 'success');
+      this.reset();
+    } else {
+      showToast(response?.message || 'Could not update password', 'error');
+    }
+  });
 });

@@ -46,7 +46,7 @@ function getDashboardStats() {
     
     // Recent events (last 5)
     $recentStmt = mysqli_prepare($conn, 
-        "SELECT event_id, title, date, category, registered, capacity 
+        "SELECT event_id, title, date, category, capacity
          FROM events ORDER BY created_at DESC LIMIT 5");
     mysqli_stmt_execute($recentStmt);
     $recentResult = mysqli_stmt_get_result($recentStmt);

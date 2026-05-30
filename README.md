@@ -68,13 +68,16 @@ EventHub is a college event management system with a public landing page, studen
    asset/php/config/db.php
    ```
 
-   Default local settings:
+   Default local settings can be overridden with environment variables or an ignored local config file:
 
-   ```php
-   define('DB_HOST', 'localhost');
-   define('DB_USER', 'root');
-   define('DB_PASS', '');
-   define('DB_NAME', 'ems');
+   ```text
+   asset/php/config/db.local.php
+   ```
+
+   Copy the example if needed:
+
+   ```text
+   asset/php/config/db.local.example.php
    ```
 
 4. Open the app through the local server.
@@ -92,7 +95,17 @@ EventHub is a college event management system with a public landing page, studen
 
 ## Review Notes
 
-Before using this outside a local demo, move database credentials out of source code and replace development sample credentials with environment-specific accounts.
+Before using this outside a local demo, replace development sample credentials with environment-specific accounts.
+
+## Local Checks
+
+After Apache and MySQL are running, run:
+
+```powershell
+.\tests\manual-api-check.ps1
+```
+
+Uploaded event images are stored under `asset/uploads/`, which is ignored by git.
 
 ## Main Pages
 

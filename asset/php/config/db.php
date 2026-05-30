@@ -1,9 +1,12 @@
 <?php
 // config/db.php
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'ems');
+$localConfigPath = __DIR__ . '/db.local.php';
+$localConfig = is_file($localConfigPath) ? require $localConfigPath : [];
+
+define('DB_HOST', getenv('EMS_DB_HOST') ?: ($localConfig['host'] ?? 'localhost'));
+define('DB_USER', getenv('EMS_DB_USER') ?: ($localConfig['user'] ?? 'root'));
+define('DB_PASS', getenv('EMS_DB_PASS') ?: ($localConfig['pass'] ?? ''));
+define('DB_NAME', getenv('EMS_DB_NAME') ?: ($localConfig['name'] ?? 'ems'));
 
 class Database {
     private static $instance = null;

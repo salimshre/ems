@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/security.php';
+require_once __DIR__ . '/config/audit.php';
 
 if (!isset($_SESSION['role'])) {
     respond(false, 'Unauthorized', [], 401);
@@ -135,7 +136,7 @@ function registerForEvent() {
 
     if ($existing) {
         $stmt = mysqli_prepare($conn,
-            "UPDATE registrations SET registration_date = ?, status = 'confirmed' WHERE registration_id = ?");
+            "UPDATE registrations SET registration_date = ?, status = 'confirmed', status_updated_by = NULL WHERE registration_id = ?");
         mysqli_stmt_bind_param($stmt, 'si', $today, $existing['registration_id']);
     } else {
         $stmt = mysqli_prepare($conn,
@@ -147,6 +148,7 @@ function registerForEvent() {
         $regId = $existing ? (int)$existing['registration_id'] : mysqli_insert_id($conn);
         mysqli_stmt_close($stmt);
         mysqli_commit($conn);
+        log_audit('register', 'registration', $regId, ['event_id' => $eventId]);
         respond(true, 'Successfully registered for the event!', ['registration_id' => $regId]);
     } else {
         $err = mysqli_stmt_error($stmt);
@@ -171,15 +173,16 @@ function cancelRegistration() {
     if ($_SESSION['role'] === 'admin') {
         // Admin can cancel any registration
         $stmt = mysqli_prepare($conn,
-            "UPDATE registrations SET status = 'cancelled' WHERE registration_id = ?");
-        mysqli_stmt_bind_param($stmt, 'i', $registrationId);
+            "UPDATE registrations SET status = 'cancelled', status_updated_by = ? WHERE registration_id = ?");
+        $adminId = $_SESSION['admin_id'] ?? null;
+        mysqli_stmt_bind_param($stmt, 'ii', $adminId, $registrationId);
     } else {
         // Student can only cancel their own
         $userId = $_SESSION['user_id'] ?? 0;
         if (!$userId) respond(false, 'Please login as a student first');
 
         $stmt = mysqli_prepare($conn,
-            "UPDATE registrations SET status = 'cancelled' WHERE registration_id = ? AND user_id = ?");
+            "UPDATE registrations SET status = 'cancelled', status_updated_by = NULL WHERE registration_id = ? AND user_id = ?");
         mysqli_stmt_bind_param($stmt, 'ii', $registrationId, $userId);
     }
 
@@ -189,6 +192,7 @@ function cancelRegistration() {
             respond(false, 'Registration not found or not owned by you');
         }
         mysqli_stmt_close($stmt);
+        log_audit('cancel', 'registration', $registrationId);
         respond(true, 'Registration cancelled successfully');
     } else {
         $err = mysqli_stmt_error($stmt);
@@ -214,12 +218,14 @@ function updateRegistrationStatus() {
     if (!in_array($status, $allowed)) respond(false, 'Invalid status value');
 
     $conn = getConn();
+    $adminId = $_SESSION['admin_id'] ?? null;
     $stmt = mysqli_prepare($conn,
-        "UPDATE registrations SET status = ? WHERE registration_id = ?");
-    mysqli_stmt_bind_param($stmt, 'si', $status, $registrationId);
+        "UPDATE registrations SET status = ?, status_updated_by = ? WHERE registration_id = ?");
+    mysqli_stmt_bind_param($stmt, 'sii', $status, $adminId, $registrationId);
 
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
+        log_audit('status_update', 'registration', $registrationId, ['status' => $status]);
         respond(true, 'Registration status updated to ' . $status);
     } else {
         $err = mysqli_stmt_error($stmt);

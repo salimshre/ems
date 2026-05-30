@@ -12,6 +12,7 @@ $action = $_POST['action'] ?? $_GET['action'] ?? '';
 match ($action) {
     'get'    => getProfile(),
     'update' => updateProfile(),
+    'change_password' => changePassword(),
     default  => respond(false, 'Invalid action')
 };
 
@@ -84,6 +85,54 @@ function updateProfile() {
     } else {
         respond(false, 'Failed to update profile');
     }
+}
+
+function changePassword() {
+    require_post();
+    require_csrf();
+
+    $role = $_SESSION['role'];
+    $current = trim($_POST['current_password'] ?? '');
+    $new = trim($_POST['new_password'] ?? '');
+
+    if (!$current || !$new) respond(false, 'Current and new password are required', [], 400);
+    if (strlen($new) < 8) respond(false, 'New password must be at least 8 characters', [], 400);
+
+    $conn = getConn();
+    if ($role === 'admin') {
+        $id = $_SESSION['admin_id'] ?? 0;
+        $stmt = mysqli_prepare($conn, "SELECT password FROM admin WHERE admin_id = ?");
+        mysqli_stmt_bind_param($stmt, 'i', $id);
+    } else {
+        $id = $_SESSION['user_id'] ?? 0;
+        $stmt = mysqli_prepare($conn, "SELECT password FROM users WHERE user_id = ?");
+        mysqli_stmt_bind_param($stmt, 'i', $id);
+    }
+
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+
+    if (!$row || !password_verify($current, $row['password'])) {
+        respond(false, 'Current password is incorrect', [], 400);
+    }
+
+    $hash = password_hash($new, PASSWORD_BCRYPT);
+    if ($role === 'admin') {
+        $stmt = mysqli_prepare($conn, "UPDATE admin SET password = ? WHERE admin_id = ?");
+    } else {
+        $stmt = mysqli_prepare($conn, "UPDATE users SET password = ? WHERE user_id = ?");
+    }
+    mysqli_stmt_bind_param($stmt, 'si', $hash, $id);
+
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        respond(true, 'Password updated successfully');
+    }
+
+    mysqli_stmt_close($stmt);
+    respond(false, 'Failed to update password', [], 500);
 }
 
 function respond($success, $message, $data = [], $code = 200) {

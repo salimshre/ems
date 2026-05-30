@@ -5,6 +5,9 @@ const API_BASE = '../php/';
 let csrfToken = '';
 let editingEventId = null;
 let editingVenueId = null;
+let selectedEventImageFile = null;
+let currentEventImage = '';
+let removeCurrentEventImage = false;
 
 // ═══════════════════════════════════════════
 //  API CALL HELPER
@@ -82,6 +85,14 @@ async function loadStats() {
     return null;
 }
 
+async function loadAdmins() {
+    const result = await apiGet('admins.php', { action: 'list' });
+    if (result && result.success) {
+        return result.admins;
+    }
+    return [];
+}
+
 // ═══════════════════════════════════════════
 //  NAV / PAGE TOGGLE
 // ═══════════════════════════════════════════
@@ -96,6 +107,7 @@ function showAdminPage(page) {
     if (page === 'events') renderEventsTable();
     if (page === 'registrations') renderRegistrationsTable();
     if (page === 'venues') renderVenuesTable();
+    if (page === 'admins') renderAdminsTable();
 }
 
 // ═══════════════════════════════════════════
@@ -237,8 +249,27 @@ async function renderVenuesTable() {
 // ═══════════════════════════════════════════
 //  EVENT CRUD OPERATIONS
 // ═══════════════════════════════════════════
+async function renderAdminsTable() {
+    const admins = await loadAdmins();
+    const tbody = document.getElementById('adminsTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = admins.map(a => `
+        <tr>
+            <td><strong>${escapeHtml(a.name)}</strong></td>
+            <td>${escapeHtml(a.username)}</td>
+            <td>${escapeHtml(a.department || 'N/A')}</td>
+            <td>${escapeHtml(a.contact || 'N/A')}</td>
+            <td>${formatDate(a.created_at)}</td>
+        </tr>
+    `).join('');
+}
+
 function openEventModal(prefillId = null) {
     editingEventId = prefillId;
+    selectedEventImageFile = null;
+    currentEventImage = '';
+    removeCurrentEventImage = false;
     const form = document.getElementById('eventForm');
     form.reset();
     removeImage();
@@ -257,6 +288,7 @@ async function loadEventData(eventId) {
     const result = await apiGet('events.php', { action: 'get', id: eventId });
     if (result && result.success && result.event) {
         const e = result.event;
+        currentEventImage = e.image_url || '';
         document.getElementById('eventTitle').value = e.title;
         document.getElementById('eventDate').value = e.date;
         document.getElementById('eventTime').value = e.time;
@@ -284,6 +316,9 @@ function closeEventModal() {
     document.getElementById('eventForm').reset();
     removeImage();
     editingEventId = null;
+    currentEventImage = '';
+    selectedEventImageFile = null;
+    removeCurrentEventImage = false;
 }
 
 function editEvent(id) { 
@@ -310,9 +345,6 @@ async function deleteEvent(id) {
 document.getElementById('eventForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     
-    const imagePreview = document.getElementById('imagePreview');
-    const imageVal = imagePreview.style.display !== 'none' ? imagePreview.src : '';
-    
     const data = {
         title: document.getElementById('eventTitle').value.trim(),
         description: document.getElementById('eventDesc').value.trim(),
@@ -321,8 +353,12 @@ document.getElementById('eventForm').addEventListener('submit', async function (
         venue: document.getElementById('eventVenue').value.trim(),
         category: document.getElementById('eventCategory').value,
         capacity: parseInt(document.getElementById('eventCapacity').value),
-        image: imageVal,
+        current_image: currentEventImage,
+        remove_image: removeCurrentEventImage ? '1' : '0',
     };
+    if (selectedEventImageFile) {
+        data.image_file = selectedEventImageFile;
+    }
     
     let result;
     if (editingEventId) {
@@ -445,6 +481,29 @@ document.getElementById('searchReg')?.addEventListener('input', function () {
 // ═══════════════════════════════════════════
 //  IMAGE UPLOAD
 // ═══════════════════════════════════════════
+document.getElementById('adminForm')?.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const result = await apiCall('admins.php', {
+        action: 'create',
+        name: document.getElementById('adminName').value.trim(),
+        username: document.getElementById('adminUsername').value.trim(),
+        password: document.getElementById('adminPassword').value,
+        admin_code: document.getElementById('adminCode').value.trim(),
+        department: document.getElementById('adminDepartment').value.trim(),
+        contact: document.getElementById('adminContact').value.trim(),
+        office_location: document.getElementById('adminOfficeLocation').value.trim(),
+    });
+
+    if (result && result.success) {
+        showToast('Admin created', 'success');
+        this.reset();
+        renderAdminsTable();
+    } else {
+        showToast(result?.message || 'Failed to create admin', 'error');
+    }
+});
+
 function handleImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -452,6 +511,12 @@ function handleImageUpload(event) {
         showToast('Image must be under 5MB', 'error'); 
         return; 
     }
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+        showToast('Use JPG, PNG, WEBP, or GIF images only', 'error');
+        return;
+    }
+    selectedEventImageFile = file;
+    removeCurrentEventImage = false;
     const reader = new FileReader();
     reader.onload = function (e) {
         const preview = document.getElementById('imagePreview');
@@ -474,6 +539,8 @@ function removeImage() {
     const area = document.getElementById('imageUploadArea');
     const input = document.getElementById('eventImage');
     if (!preview) return;
+    selectedEventImageFile = null;
+    removeCurrentEventImage = !!currentEventImage;
     preview.src = '';
     preview.style.display = 'none';
     placeholder.style.display = 'flex';
@@ -550,7 +617,7 @@ function safeClass(text) {
 function safeImageSrc(src, fallback) {
     const value = String(src || '').trim();
     if (!value) return fallback;
-    if (/^https?:\/\//i.test(value) || /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value)) {
+    if (/^https?:\/\//i.test(value) || /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value) || /^\.\.\/uploads\/events\/[a-f0-9]+\.(jpg|png|webp|gif)$/i.test(value)) {
         return escapeAttr(value);
     }
     return fallback;

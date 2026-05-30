@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/security.php';
+require_once __DIR__ . '/config/audit.php';
 
 if (!isset($_SESSION['role'])) {
     respond(false, 'Unauthorized', [], 401);
@@ -52,20 +53,17 @@ function createVenue() {
 
     if ($_SESSION['role'] !== 'admin') respond(false, 'Only admins can add venues');
     
-    $name = trim($_POST['name'] ?? '');
-    $capacity = (int)($_POST['capacity'] ?? 0);
-    $location = trim($_POST['location'] ?? '');
-    $facilities = trim($_POST['facilities'] ?? '');
-    
-    if (!$name || !$capacity) respond(false, 'Name and capacity required');
+    [$name, $capacity, $location, $facilities] = venueInput();
     
     $conn = getConn();
-    $stmt = mysqli_prepare($conn, "INSERT INTO venues (name, capacity, location, facilities) VALUES (?, ?, ?, ?)");
-    mysqli_stmt_bind_param($stmt, 'siss', $name, $capacity, $location, $facilities);
+    $adminId = $_SESSION['admin_id'] ?? null;
+    $stmt = mysqli_prepare($conn, "INSERT INTO venues (name, capacity, location, facilities, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, 'sissii', $name, $capacity, $location, $facilities, $adminId, $adminId);
     
     if (mysqli_stmt_execute($stmt)) {
         $venueId = mysqli_insert_id($conn);
         mysqli_stmt_close($stmt);
+        log_audit('create', 'venue', $venueId, ['name' => $name]);
         respond(true, 'Venue created', ['venue_id' => $venueId]);
     } else {
         respond(false, 'Failed to create venue');
@@ -79,19 +77,18 @@ function updateVenue() {
     if ($_SESSION['role'] !== 'admin') respond(false, 'Only admins can update venues');
     
     $venueId = (int)($_POST['id'] ?? 0);
-    $name = trim($_POST['name'] ?? '');
-    $capacity = (int)($_POST['capacity'] ?? 0);
-    $location = trim($_POST['location'] ?? '');
-    $facilities = trim($_POST['facilities'] ?? '');
+    [$name, $capacity, $location, $facilities] = venueInput();
     
-    if (!$venueId || !$name) respond(false, 'Venue ID and name required');
+    if (!$venueId) respond(false, 'Venue ID required');
     
     $conn = getConn();
-    $stmt = mysqli_prepare($conn, "UPDATE venues SET name=?, capacity=?, location=?, facilities=? WHERE venue_id=?");
-    mysqli_stmt_bind_param($stmt, 'sissi', $name, $capacity, $location, $facilities, $venueId);
+    $adminId = $_SESSION['admin_id'] ?? null;
+    $stmt = mysqli_prepare($conn, "UPDATE venues SET name=?, capacity=?, location=?, facilities=?, updated_by=? WHERE venue_id=?");
+    mysqli_stmt_bind_param($stmt, 'sissii', $name, $capacity, $location, $facilities, $adminId, $venueId);
     
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
+        log_audit('update', 'venue', $venueId, ['name' => $name]);
         respond(true, 'Venue updated');
     } else {
         respond(false, 'Failed to update venue');
@@ -113,10 +110,24 @@ function deleteVenue() {
     
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
+        log_audit('delete', 'venue', $venueId);
         respond(true, 'Venue deleted');
     } else {
         respond(false, 'Failed to delete venue');
     }
+}
+
+function venueInput() {
+    $name = trim($_POST['name'] ?? '');
+    $capacity = (int)($_POST['capacity'] ?? 0);
+    $location = trim($_POST['location'] ?? '');
+    $facilities = trim($_POST['facilities'] ?? '');
+
+    if (!$name || !$capacity) respond(false, 'Name and capacity required', [], 400);
+    if (strlen($name) > 100 || strlen($location) > 200) respond(false, 'Venue fields are too long', [], 400);
+    if ($capacity < 1 || $capacity > 100000) respond(false, 'Venue capacity must be between 1 and 100000', [], 400);
+
+    return [$name, $capacity, $location, $facilities];
 }
 
 function respond($success, $message, $data = [], $code = 200) {

@@ -46,9 +46,11 @@ CREATE TABLE IF NOT EXISTS events (
     image_url TEXT,
     status ENUM('upcoming', 'ongoing', 'completed', 'cancelled') DEFAULT 'upcoming',
     created_by INT,
+    updated_by INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES admin(admin_id) ON DELETE SET NULL
+    FOREIGN KEY (created_by) REFERENCES admin(admin_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES admin(admin_id) ON DELETE SET NULL
 );
 
 -- Venues table
@@ -59,8 +61,12 @@ CREATE TABLE IF NOT EXISTS venues (
     location VARCHAR(200),
     facilities TEXT,
     status ENUM('active', 'inactive', 'maintenance') DEFAULT 'active',
+    created_by INT,
+    updated_by INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES admin(admin_id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES admin(admin_id) ON DELETE SET NULL
 );
 
 -- Registrations table
@@ -70,11 +76,26 @@ CREATE TABLE IF NOT EXISTS registrations (
     event_id INT NOT NULL,
     registration_date DATE NOT NULL,
     status ENUM('confirmed', 'pending', 'cancelled', 'attended') DEFAULT 'pending',
+    status_updated_by INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+    FOREIGN KEY (status_updated_by) REFERENCES admin(admin_id) ON DELETE SET NULL,
     UNIQUE KEY unique_registration (user_id, event_id)
+);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    audit_id INT AUTO_INCREMENT PRIMARY KEY,
+    actor_admin_id INT NULL,
+    actor_user_id INT NULL,
+    action VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id INT NULL,
+    details JSON NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (actor_admin_id) REFERENCES admin(admin_id) ON DELETE SET NULL,
+    FOREIGN KEY (actor_user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 -- Insert sample admin (password: admin123)
@@ -97,13 +118,13 @@ INSERT INTO venues (name, capacity, location, facilities) VALUES
 
 -- Insert sample events
 INSERT INTO events (title, description, date, time, venue, category, capacity, registered, image_url, status) VALUES
-('Annual Innovation Summit', 'Deep dives into AI, Blockchain, and the future of the web. Industry experts will share insights on emerging technologies.', '2026-10-24', '10:00 AM', 'Main Auditorium', 'Tech', 300, 187, 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop', 'upcoming'),
-('Harmony Beats Concert', 'Fusion of classical and contemporary music. Featuring renowned artists and student performers.', '2026-10-28', '06:00 PM', 'Open Grounds', 'Cultural', 500, 312, 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&auto=format&fit=crop', 'upcoming'),
-('Founder\'s Pitch Deck 101', 'Build a winning pitch deck for investors. Learn from successful startup founders.', '2026-11-02', '11:30 AM', 'Seminar Hall B', 'Workshop', 80, 54, 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&auto=format&fit=crop', 'upcoming'),
-('Inter-College Football Cup', 'Annual inter-college football tournament. 8 teams competing for the championship.', '2026-11-10', '09:00 AM', 'Sports Complex', 'Sports', 200, 96, '', 'upcoming'),
-('Future of AI Summit', 'Explore the transformative power of generative AI in modern applications and research.', '2026-10-24', '10:00 AM', 'Main Auditorium', 'Tech', 250, 120, 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&auto=format&fit=crop', 'upcoming'),
-('Global Music Fest', 'A night of diverse musical performances from across the globe.', '2026-11-02', '5:30 PM', 'Open Grounds', 'Cultural', 600, 245, 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&auto=format&fit=crop', 'upcoming'),
-('UX Design Workshop', 'Hands-on workshop focusing on user research, wireframing, and creating high-fidelity prototypes.', '2026-10-28', '2:00 PM', 'Innovation Hub', 'Workshop', 50, 32, 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&auto=format&fit=crop', 'upcoming');
+('Annual Innovation Summit', 'Deep dives into AI, Blockchain, and the future of the web. Industry experts will share insights on emerging technologies.', '2026-10-24', '10:00 AM', 'Main Auditorium', 'Tech', 300, 0, 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop', 'upcoming'),
+('Harmony Beats Concert', 'Fusion of classical and contemporary music. Featuring renowned artists and student performers.', '2026-10-28', '06:00 PM', 'Open Grounds', 'Cultural', 500, 0, 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&auto=format&fit=crop', 'upcoming'),
+('Founder\'s Pitch Deck 101', 'Build a winning pitch deck for investors. Learn from successful startup founders.', '2026-11-02', '11:30 AM', 'Seminar Hall B', 'Workshop', 80, 0, 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&auto=format&fit=crop', 'upcoming'),
+('Inter-College Football Cup', 'Annual inter-college football tournament. 8 teams competing for the championship.', '2026-11-10', '09:00 AM', 'Sports Complex', 'Sports', 200, 0, '', 'upcoming'),
+('Future of AI Summit', 'Explore the transformative power of generative AI in modern applications and research.', '2026-10-24', '10:00 AM', 'Main Auditorium', 'Tech', 250, 0, 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&auto=format&fit=crop', 'upcoming'),
+('Global Music Fest', 'A night of diverse musical performances from across the globe.', '2026-11-02', '5:30 PM', 'Open Grounds', 'Cultural', 600, 0, 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&auto=format&fit=crop', 'upcoming'),
+('UX Design Workshop', 'Hands-on workshop focusing on user research, wireframing, and creating high-fidelity prototypes.', '2026-10-28', '2:00 PM', 'Innovation Hub', 'Workshop', 50, 0, 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&auto=format&fit=crop', 'upcoming');
 
 -- Insert sample registrations
 INSERT INTO registrations (user_id, event_id, registration_date, status) VALUES
@@ -121,3 +142,5 @@ CREATE INDEX idx_events_status ON events(status);
 CREATE INDEX idx_registrations_user ON registrations(user_id);
 CREATE INDEX idx_registrations_event ON registrations(event_id);
 CREATE INDEX idx_registrations_status ON registrations(status);
+CREATE INDEX idx_audit_entity ON audit_logs(entity_type, entity_id);
+CREATE INDEX idx_audit_created_at ON audit_logs(created_at);

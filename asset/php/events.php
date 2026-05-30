@@ -2,6 +2,8 @@
 session_start();
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/security.php';
+require_once __DIR__ . '/config/upload.php';
+require_once __DIR__ . '/config/audit.php';
 
 // Check authentication
 if (!isset($_SESSION['role'])) {
@@ -113,29 +115,20 @@ function createEvent() {
         respond(false, 'Only admins can create events');
     }
     
-    $title = trim($_POST['title'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $date = $_POST['date'] ?? '';
-    $time = $_POST['time'] ?? '';
-    $venue = trim($_POST['venue'] ?? '');
-    $category = trim($_POST['category'] ?? '');
-    $capacity = (int)($_POST['capacity'] ?? 0);
-    $image = trim($_POST['image'] ?? '');
-    
-    if (!$title || !$date || !$time || !$venue || !$category || !$capacity) {
-        respond(false, 'All required fields must be filled');
-    }
+    [$title, $description, $date, $time, $venue, $category, $capacity] = eventInput();
+    $image = save_uploaded_image('image_file');
     
     $conn = getConn();
     $stmt = mysqli_prepare($conn, 
-        "INSERT INTO events (title, description, date, time, venue, category, capacity, image_url, created_by) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        "INSERT INTO events (title, description, date, time, venue, category, capacity, image_url, created_by, updated_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $adminId = $_SESSION['admin_id'] ?? null;
-    mysqli_stmt_bind_param($stmt, 'ssssssisi', $title, $description, $date, $time, $venue, $category, $capacity, $image, $adminId);
+    mysqli_stmt_bind_param($stmt, 'ssssssisii', $title, $description, $date, $time, $venue, $category, $capacity, $image, $adminId, $adminId);
     
     if (mysqli_stmt_execute($stmt)) {
         $eventId = mysqli_insert_id($conn);
         mysqli_stmt_close($stmt);
+        log_audit('create', 'event', $eventId, ['title' => $title]);
         respond(true, 'Event created successfully', ['event_id' => $eventId]);
     } else {
         respond(false, 'Failed to create event: ' . mysqli_stmt_error($stmt));
@@ -158,23 +151,21 @@ function updateEvent() {
         respond(false, 'Event ID required');
     }
     
-    $title = trim($_POST['title'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $date = $_POST['date'] ?? '';
-    $time = $_POST['time'] ?? '';
-    $venue = trim($_POST['venue'] ?? '');
-    $category = trim($_POST['category'] ?? '');
-    $capacity = (int)($_POST['capacity'] ?? 0);
-    $image = trim($_POST['image'] ?? '');
+    [$title, $description, $date, $time, $venue, $category, $capacity] = eventInput();
+    $currentImage = trim($_POST['current_image'] ?? '');
+    $removeImage = ($_POST['remove_image'] ?? '') === '1';
+    $image = $removeImage ? '' : save_uploaded_image('image_file', $currentImage);
     
     $conn = getConn();
     $stmt = mysqli_prepare($conn,
-        "UPDATE events SET title=?, description=?, date=?, time=?, venue=?, category=?, capacity=?, image_url=?
+        "UPDATE events SET title=?, description=?, date=?, time=?, venue=?, category=?, capacity=?, image_url=?, updated_by=?
          WHERE event_id=?");
-    mysqli_stmt_bind_param($stmt, 'ssssssisi', $title, $description, $date, $time, $venue, $category, $capacity, $image, $eventId);
+    $adminId = $_SESSION['admin_id'] ?? null;
+    mysqli_stmt_bind_param($stmt, 'ssssssisii', $title, $description, $date, $time, $venue, $category, $capacity, $image, $adminId, $eventId);
     
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
+        log_audit('update', 'event', $eventId, ['title' => $title]);
         respond(true, 'Event updated successfully');
     } else {
         respond(false, 'Failed to update event: ' . mysqli_stmt_error($stmt));
@@ -203,6 +194,7 @@ function deleteEvent() {
     
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
+        log_audit('delete', 'event', $eventId);
         respond(true, 'Event deleted successfully');
     } else {
         respond(false, 'Failed to delete event');
@@ -248,6 +240,35 @@ function getCategories() {
         $categories[] = $row['category'];
     }
     respond(true, 'Categories fetched', ['categories' => $categories]);
+}
+
+function eventInput() {
+    $title = trim($_POST['title'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $date = trim($_POST['date'] ?? '');
+    $time = trim($_POST['time'] ?? '');
+    $venue = trim($_POST['venue'] ?? '');
+    $category = trim($_POST['category'] ?? '');
+    $capacity = (int)($_POST['capacity'] ?? 0);
+    $allowedCategories = ['Tech', 'Cultural', 'Workshop', 'Sports', 'Academic', 'Career'];
+
+    if (!$title || !$date || !$time || !$venue || !$category || !$capacity) {
+        respond(false, 'All required fields must be filled', [], 400);
+    }
+    if (strlen($title) > 200 || strlen($venue) > 150 || strlen($time) > 20) {
+        respond(false, 'One or more fields are too long', [], 400);
+    }
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+        respond(false, 'Invalid event date', [], 400);
+    }
+    if ($capacity < 1 || $capacity > 10000) {
+        respond(false, 'Capacity must be between 1 and 10000', [], 400);
+    }
+    if (!in_array($category, $allowedCategories, true)) {
+        respond(false, 'Invalid category', [], 400);
+    }
+
+    return [$title, $description, $date, $time, $venue, $category, $capacity];
 }
 
 function respond($success, $message, $data = [], $code = 200) {

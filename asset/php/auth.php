@@ -1,15 +1,19 @@
 <?php
 session_start();
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/security.php';
 
 // ── ROUTER ────────────────────────────────────────────────
-$action = $_POST['action'] ?? $_GET['action'] ?? '';
+$action = $_SERVER['REQUEST_METHOD'] === 'POST'
+    ? ($_POST['action'] ?? '')
+    : ($_GET['action'] ?? '');
 
 match ($action) {
     'login'  => handleLogin(),
     'signup' => handleSignup(),
     'logout' => handleLogout(),
     'check'  => handleCheckSession(),
+    'csrf'   => handleCsrf(),
     default  => respond(false, 'Invalid action.')
 };
 
@@ -17,6 +21,8 @@ match ($action) {
 //  LOGIN
 // ══════════════════════════════════════════════════════════
 function handleLogin() {
+    require_post();
+
     $email    = trim($_POST['email']    ?? '');
     $password = trim($_POST['password'] ?? '');
     $role     = trim($_POST['role']     ?? 'user');
@@ -49,19 +55,7 @@ function handleLogin() {
         respond(false, 'No account found with those credentials.');
     }
 
-    // Check password - support both hashed and plain text
-    $validPassword = false;
-    
-    // Try password_verify first (for hashed passwords)
-    if (password_verify($password, $row['hash'])) {
-        $validPassword = true;
-    }
-    // Fallback: check plain text (for admin without hash)
-    elseif ($row['hash'] === $password) {
-        $validPassword = true;
-    }
-
-    if (!$validPassword) {
+    if (!password_verify($password, $row['hash'])) {
         respond(false, 'Incorrect password.');
     }
 
@@ -74,6 +68,7 @@ function handleLogin() {
         $_SESSION['role']       = 'admin';
         respond(true, 'Login successful.', [
             'redirect' => '/ems/asset/pages/admin.html',
+            'csrf_token' => csrf_token(),
             'user' => ['id' => $row['id'], 'name' => $row['full_name'] ?? $row['name'], 'role' => 'admin']
         ]);
     } else {
@@ -83,6 +78,7 @@ function handleLogin() {
         $_SESSION['role']      = 'user';
         respond(true, 'Login successful.', [
             'redirect' => '/ems/asset/pages/student.html',
+            'csrf_token' => csrf_token(),
             'user' => ['id' => $row['id'], 'name' => $row['name'], 'email' => $row['email'], 'role' => 'user']
         ]);
     }
@@ -92,6 +88,9 @@ function handleLogin() {
 //  SIGNUP
 // ══════════════════════════════════════════════════════════
 function handleSignup() {
+    require_post();
+    require_csrf();
+
     $name     = trim($_POST['name']     ?? '');
     $email    = trim($_POST['email']    ?? '');
     $password = trim($_POST['password'] ?? '');
@@ -111,6 +110,11 @@ function handleSignup() {
     $conn = getConn();
 
     if ($role === 'admin') {
+        if (($_SESSION['role'] ?? '') !== 'admin') {
+            respond(false, 'Only an existing admin can create another admin account.', [], 403);
+        }
+        require_csrf();
+
         // ── Check duplicate admin username ──
         $chk = mysqli_prepare($conn, "SELECT admin_id FROM admin WHERE username = ? LIMIT 1");
         mysqli_stmt_bind_param($chk, 's', $email);
@@ -127,12 +131,12 @@ function handleSignup() {
         $officeLocation = trim($_POST['officeLocation'] ?? '');
         $adminID       = trim($_POST['adminID']        ?? '');
 
-        // Store password as plain text for admin (easier for testing)
+        $hash = password_hash($password, PASSWORD_BCRYPT);
         $stmt = mysqli_prepare($conn,
             "INSERT INTO admin (username, password, name, department, contact, office_location, admin_code)
              VALUES (?, ?, ?, ?, ?, ?, ?)");
         mysqli_stmt_bind_param($stmt, 'sssssss',
-            $email, $password, $name, $dept, $contact, $officeLocation, $adminID);
+            $email, $hash, $name, $dept, $contact, $officeLocation, $adminID);
 
     } else {
         // ── Check duplicate user email ──
@@ -177,6 +181,9 @@ function handleSignup() {
 //  LOGOUT
 // ══════════════════════════════════════════════════════════
 function handleLogout() {
+    require_post();
+    require_csrf();
+
     session_destroy();
     respond(true, 'Logged out successfully', ['redirect' => '/ems/asset/pages/login.html']);
 }
@@ -192,7 +199,8 @@ function handleCheckSession() {
                 'id' => $_SESSION['user_id'] ?? $_SESSION['admin_id'],
                 'name' => $_SESSION['user_name'] ?? $_SESSION['admin_name'],
                 'role' => $_SESSION['role']
-            ]
+            ],
+            'csrf_token' => csrf_token()
         ]);
     } else {
         respond(false, 'No active session');
@@ -200,7 +208,12 @@ function handleCheckSession() {
 }
 
 // ── JSON response helper ───────────────────────────────────
-function respond(bool $success, string $message, array $data = []) {
+function handleCsrf() {
+    respond(true, 'Security token generated', ['csrf_token' => csrf_token()]);
+}
+
+function respond(bool $success, string $message, array $data = [], int $code = 200) {
+    http_response_code($code);
     header('Content-Type: application/json');
     echo json_encode(array_merge(['success' => $success, 'message' => $message], $data));
     exit;

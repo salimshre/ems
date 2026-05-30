@@ -1,10 +1,12 @@
 <?php
 session_start();
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/security.php';
 
 if (!isset($_SESSION['role'])) {
     respond(false, 'Unauthorized', [], 401);
 }
+require_role('admin');
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 

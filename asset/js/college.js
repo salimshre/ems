@@ -2,6 +2,7 @@
 //  STATE & API CONFIGURATION
 // ═══════════════════════════════════════════
 const API_BASE = '../php/';
+let csrfToken = '';
 let editingEventId = null;
 let editingVenueId = null;
 
@@ -12,6 +13,9 @@ async function apiCall(endpoint, data = {}) {
     const formData = new FormData();
     for (let key in data) {
         formData.append(key, data[key]);
+    }
+    if (csrfToken) {
+        formData.append('csrf_token', csrfToken);
     }
 
     try {
@@ -120,8 +124,8 @@ function renderRecentEvents(eventsList) {
         <tr>
             <td><strong>${escapeHtml(e.title)}</strong></td>
             <td>${formatDate(e.date)}</td>
-            <td><span class="badge badge-${e.category.toLowerCase()}">${e.category}</span></td>
-            <td>${e.registered || 0} / ${e.capacity}</td>
+            <td><span class="badge badge-${safeClass(e.category)}">${escapeHtml(e.category)}</span></td>
+            <td>${Number(e.registered || 0)} / ${Number(e.capacity || 0)}</td>
         </tr>
     `).join('');
 }
@@ -138,19 +142,19 @@ async function renderEventsTable() {
         <tr>
             <td>
                 <div style="display:flex;align-items:center;gap:10px;">
-                    ${e.image_url ? `<img src="${e.image_url}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0;">` : `<div style="width:40px;height:40px;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;color:var(--primary);flex-shrink:0;"><i class="fa-regular fa-image"></i></div>`}
+                    ${e.image_url ? `<img src="${safeImageSrc(e.image_url, '')}" alt="${escapeAttr(e.title)}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0;">` : `<div style="width:40px;height:40px;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;color:var(--primary);flex-shrink:0;"><i class="fa-regular fa-image"></i></div>`}
                     <strong>${escapeHtml(e.title)}</strong>
                 </div>
             </td>
             <td>${formatDate(e.date)}</td>
-            <td>${e.time}</td>
+            <td>${escapeHtml(e.time)}</td>
             <td>${escapeHtml(e.venue)}</td>
-            <td><span class="badge badge-${e.category.toLowerCase()}">${e.category}</span></td>
-            <td>${e.capacity}</td>
-            <td>${e.confirmed_registrations || e.registered || 0}</td>
+            <td><span class="badge badge-${safeClass(e.category)}">${escapeHtml(e.category)}</span></td>
+            <td>${Number(e.capacity || 0)}</td>
+            <td>${Number(e.confirmed_registrations || e.registered || 0)}</td>
             <td class="action-icons">
-                <i class="fa-solid fa-pen-to-square" title="Edit" onclick="editEvent(${e.event_id})"></i>
-                <i class="fa-solid fa-trash-alt" title="Delete" onclick="deleteEvent(${e.event_id})"></i>
+                <i class="fa-solid fa-pen-to-square" title="Edit" onclick="editEvent(${Number(e.event_id)})"></i>
+                <i class="fa-solid fa-trash-alt" title="Delete" onclick="deleteEvent(${Number(e.event_id)})"></i>
             </td>
         </tr>
     `).join('');
@@ -180,11 +184,11 @@ async function renderRegistrationsTable(filter = '') {
             <td><strong>${escapeHtml(r.student_name)}</strong></td>
             <td>${escapeHtml(r.event_title)}</td>
             <td>${formatDate(r.registration_date)}</td>
-            <td><span class="badge badge-status-${r.status.toLowerCase()}">${r.status}</span></td>
+            <td><span class="badge badge-status-${safeClass(r.status)}">${escapeHtml(r.status)}</span></td>
             <td>
-                ${r.status !== 'confirmed' ? `<button class="btn-primary btn-sm" onclick="updateRegStatus(${r.registration_id},'confirmed')">Confirm</button>` : ''}
-                ${r.status !== 'cancelled' ? `<button class="btn-danger btn-sm" onclick="updateRegStatus(${r.registration_id},'cancelled')">Cancel</button>` : ''}
-                ${r.status !== 'attended' ? `<button class="btn-primary btn-sm" onclick="updateRegStatus(${r.registration_id},'attended')">Mark Attended</button>` : ''}
+                ${r.status !== 'confirmed' ? `<button class="btn-primary btn-sm" onclick="updateRegStatus(${Number(r.registration_id)},'confirmed')">Confirm</button>` : ''}
+                ${r.status !== 'cancelled' ? `<button class="btn-danger btn-sm" onclick="updateRegStatus(${Number(r.registration_id)},'cancelled')">Cancel</button>` : ''}
+                ${r.status !== 'attended' ? `<button class="btn-primary btn-sm" onclick="updateRegStatus(${Number(r.registration_id)},'attended')">Mark Attended</button>` : ''}
             </td>
         </tr>
     `).join('');
@@ -219,12 +223,12 @@ async function renderVenuesTable() {
     tbody.innerHTML = venues.map(v => `
         <tr>
             <td><strong>${escapeHtml(v.name)}</strong></td>
-            <td>${v.capacity}</td>
+            <td>${Number(v.capacity || 0)}</td>
             <td>${escapeHtml(v.location || 'N/A')}</td>
             <td>${escapeHtml(v.facilities || 'N/A')}</td>
             <td class="action-icons">
-                <i class="fa-solid fa-pen-to-square" title="Edit" onclick="editVenue(${v.venue_id})"></i>
-                <i class="fa-solid fa-trash-alt" title="Delete" onclick="deleteVenue(${v.venue_id})"></i>
+                <i class="fa-solid fa-pen-to-square" title="Edit" onclick="editVenue(${Number(v.venue_id)})"></i>
+                <i class="fa-solid fa-trash-alt" title="Delete" onclick="deleteVenue(${Number(v.venue_id)})"></i>
             </td>
         </tr>
     `).join('');
@@ -500,6 +504,7 @@ async function checkAdminLogin() {
         window.location.href = 'login.html';
         return false;
     }
+    csrfToken = result.csrf_token || '';
     
     // Update admin name in header
     const adminInfoSpan = document.querySelector('.admin-info span');
@@ -532,6 +537,23 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function escapeAttr(text) {
+    return escapeHtml(text).replace(/"/g, '&quot;');
+}
+
+function safeClass(text) {
+    return String(text || '').toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+}
+
+function safeImageSrc(src, fallback) {
+    const value = String(src || '').trim();
+    if (!value) return fallback;
+    if (/^https?:\/\//i.test(value) || /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value)) {
+        return escapeAttr(value);
+    }
+    return fallback;
 }
 
 // ═══════════════════════════════════════════

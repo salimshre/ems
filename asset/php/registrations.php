@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/security.php';
 
 if (!isset($_SESSION['role'])) {
     respond(false, 'Unauthorized', [], 401);
@@ -85,6 +86,9 @@ function getMyRegistrations() {
 //  REGISTER FOR EVENT (Student)
 // ══════════════════════════════════════════════════════════
 function registerForEvent() {
+    require_post();
+    require_csrf();
+
     $userId  = $_SESSION['user_id'] ?? 0;
     if (!$userId) respond(false, 'Please login as a student first');
 
@@ -93,47 +97,61 @@ function registerForEvent() {
 
     $conn = getConn();
 
-    // Check event exists and has available capacity
+    mysqli_begin_transaction($conn);
+
     $evtStmt = mysqli_prepare($conn,
         "SELECT event_id, capacity,
          (SELECT COUNT(*) FROM registrations WHERE event_id = e.event_id AND status = 'confirmed') AS confirmed
-         FROM events e WHERE event_id = ? LIMIT 1");
+         FROM events e WHERE event_id = ? LIMIT 1 FOR UPDATE");
     mysqli_stmt_bind_param($evtStmt, 'i', $eventId);
     mysqli_stmt_execute($evtStmt);
     $evtResult = mysqli_stmt_get_result($evtStmt);
     $event     = mysqli_fetch_assoc($evtResult);
     mysqli_stmt_close($evtStmt);
 
-    if (!$event) respond(false, 'Event not found');
+    if (!$event) {
+        mysqli_rollback($conn);
+        respond(false, 'Event not found');
+    }
     if ((int)$event['confirmed'] >= (int)$event['capacity']) {
+        mysqli_rollback($conn);
         respond(false, 'Sorry, this event is fully booked');
     }
 
-    // Check duplicate registration
     $chk = mysqli_prepare($conn,
-        "SELECT registration_id FROM registrations WHERE user_id = ? AND event_id = ? LIMIT 1");
+        "SELECT registration_id, status FROM registrations WHERE user_id = ? AND event_id = ? LIMIT 1 FOR UPDATE");
     mysqli_stmt_bind_param($chk, 'ii', $userId, $eventId);
     mysqli_stmt_execute($chk);
-    mysqli_stmt_store_result($chk);
-    if (mysqli_stmt_num_rows($chk) > 0) {
+    $chkResult = mysqli_stmt_get_result($chk);
+    $existing = mysqli_fetch_assoc($chkResult);
+    if ($existing && $existing['status'] !== 'cancelled') {
         mysqli_stmt_close($chk);
+        mysqli_rollback($conn);
         respond(false, 'You are already registered for this event');
     }
     mysqli_stmt_close($chk);
 
-    // Insert registration
     $today = date('Y-m-d');
-    $stmt  = mysqli_prepare($conn,
-        "INSERT INTO registrations (user_id, event_id, registration_date, status) VALUES (?, ?, ?, 'confirmed')");
-    mysqli_stmt_bind_param($stmt, 'iis', $userId, $eventId, $today);
+
+    if ($existing) {
+        $stmt = mysqli_prepare($conn,
+            "UPDATE registrations SET registration_date = ?, status = 'confirmed' WHERE registration_id = ?");
+        mysqli_stmt_bind_param($stmt, 'si', $today, $existing['registration_id']);
+    } else {
+        $stmt = mysqli_prepare($conn,
+            "INSERT INTO registrations (user_id, event_id, registration_date, status) VALUES (?, ?, ?, 'confirmed')");
+        mysqli_stmt_bind_param($stmt, 'iis', $userId, $eventId, $today);
+    }
 
     if (mysqli_stmt_execute($stmt)) {
-        $regId = mysqli_insert_id($conn);
+        $regId = $existing ? (int)$existing['registration_id'] : mysqli_insert_id($conn);
         mysqli_stmt_close($stmt);
+        mysqli_commit($conn);
         respond(true, 'Successfully registered for the event!', ['registration_id' => $regId]);
     } else {
         $err = mysqli_stmt_error($stmt);
         mysqli_stmt_close($stmt);
+        mysqli_rollback($conn);
         respond(false, 'Registration failed: ' . $err);
     }
 }
@@ -142,6 +160,9 @@ function registerForEvent() {
 //  CANCEL REGISTRATION (Student — own, or Admin — any)
 // ══════════════════════════════════════════════════════════
 function cancelRegistration() {
+    require_post();
+    require_csrf();
+
     $registrationId = (int)($_POST['registration_id'] ?? 0);
     if (!$registrationId) respond(false, 'Registration ID is required');
 
@@ -180,6 +201,9 @@ function cancelRegistration() {
 //  UPDATE REGISTRATION STATUS (Admin only)
 // ══════════════════════════════════════════════════════════
 function updateRegistrationStatus() {
+    require_post();
+    require_csrf();
+
     if ($_SESSION['role'] !== 'admin') respond(false, 'Only admins can update registration status');
 
     $registrationId = (int)($_POST['registration_id'] ?? 0);

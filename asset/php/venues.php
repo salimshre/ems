@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/security.php';
 
 if (!isset($_SESSION['role'])) {
     respond(false, 'Unauthorized', [], 401);
@@ -46,6 +47,9 @@ function getVenue() {
 }
 
 function createVenue() {
+    require_post();
+    require_csrf();
+
     if ($_SESSION['role'] !== 'admin') respond(false, 'Only admins can add venues');
     
     $name = trim($_POST['name'] ?? '');
@@ -69,6 +73,9 @@ function createVenue() {
 }
 
 function updateVenue() {
+    require_post();
+    require_csrf();
+
     if ($_SESSION['role'] !== 'admin') respond(false, 'Only admins can update venues');
     
     $venueId = (int)($_POST['id'] ?? 0);
@@ -92,6 +99,9 @@ function updateVenue() {
 }
 
 function deleteVenue() {
+    require_post();
+    require_csrf();
+
     if ($_SESSION['role'] !== 'admin') respond(false, 'Only admins can delete venues');
     
     $venueId = (int)($_POST['id'] ?? 0);

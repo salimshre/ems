@@ -92,13 +92,7 @@ EventHub is a college event management system with a public landing page, studen
 
 ## Review Notes
 
-Before using this outside a local demo, address these issues:
-
-- Hash admin passwords the same way student passwords are hashed.
-- Update hard-coded redirects in `asset/php/auth.php` from `/codefeat/...` to the correct project path.
-- Replace plaintext sample passwords in SQL with hashed passwords or create users through the signup flow.
-- Add CSRF protection to state-changing POST endpoints.
-- Move database credentials out of source code for deployed environments.
+Before using this outside a local demo, move database credentials out of source code and replace development sample credentials with environment-specific accounts.
 
 ## Main Pages
 

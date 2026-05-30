@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/security.php';
 
 if (!isset($_SESSION['role'])) {
     respond(false, 'Unauthorized', [], 401);
@@ -45,6 +46,9 @@ function getProfile() {
 }
 
 function updateProfile() {
+    require_post();
+    require_csrf();
+
     $userId = $_SESSION['user_id'] ?? 0;
     $role = $_SESSION['role'];
     

@@ -7,6 +7,7 @@ const API_BASE = '../php/';
 
 // Global state
 let currentUser = null;
+let csrfToken = '';
 let events = [];
 let myRegistrations = [];
 let registeredEventsSet = new Set();
@@ -72,6 +73,9 @@ async function apiCall(endpoint, data = {}) {
   const formData = new FormData();
   for (let key in data) {
     formData.append(key, data[key]);
+  }
+  if (csrfToken) {
+    formData.append('csrf_token', csrfToken);
   }
 
   try {
@@ -158,10 +162,10 @@ function renderUpcomingEvents(eventsList) {
   };
 
   container.innerHTML = eventsList.map(event => `
-    <div class="sts-upcoming-event-card" data-event-id="${event.event_id}">
+    <div class="sts-upcoming-event-card" data-event-id="${Number(event.event_id)}">
       <div class="sts-card-img-wrap">
-        <img src="${event.image_url || 'https://via.placeholder.com/600x400?text=Event'}" alt="${event.title}">
-        <span class="sts-card-badge ${eventCategories[event.category] || 'default'}">${event.category}</span>
+        <img src="${safeImageSrc(event.image_url, 'https://via.placeholder.com/600x400?text=Event')}" alt="${escapeAttr(event.title)}">
+        <span class="sts-card-badge ${eventCategories[event.category] || 'default'}">${escapeHtml(event.category)}</span>
       </div>
       <div class="sts-upcoming-event-intro">
         <div class="sts-upcomming-wrapper">
@@ -170,7 +174,7 @@ function renderUpcomingEvents(eventsList) {
             <i class="fa-regular fa-calendar"></i>
             <span>${formatDate(event.date)}</span>
             <span class="ev-sep">•</span>
-            <span>${event.time}</span>
+            <span>${escapeHtml(event.time)}</span>
           </div>
           <div class="ev-meta">
             <i class="fa-solid fa-location-dot"></i>
@@ -179,10 +183,10 @@ function renderUpcomingEvents(eventsList) {
           <p class="ev-desc">${escapeHtml(event.description || 'No description available')}</p>
           <div class="ev-meta">
             <i class="fa-solid fa-users"></i>
-            <span>${event.confirmed_registrations || 0} / ${event.capacity} registered</span>
+            <span>${Number(event.confirmed_registrations || 0)} / ${Number(event.capacity || 0)} registered</span>
           </div>
         </div>
-        <button class="btn-register" onclick="registerForEvent(${event.event_id}, this)">Register Now</button>
+        <button class="btn-register" onclick="registerForEvent(${Number(event.event_id)}, this)">Register Now</button>
       </div>
     </div>
   `).join('');
@@ -213,10 +217,10 @@ function renderAllEvents(eventsList) {
   };
 
   container.innerHTML = eventsList.map(event => `
-    <div class="sts-upcoming-event-card" data-event-id="${event.event_id}">
+    <div class="sts-upcoming-event-card" data-event-id="${Number(event.event_id)}">
       <div class="sts-card-img-wrap">
-        <img src="${event.image_url || 'https://via.placeholder.com/600x400?text=Event'}" alt="${event.title}">
-        <span class="sts-card-badge ${eventCategories[event.category] || 'default'}">${event.category}</span>
+        <img src="${safeImageSrc(event.image_url, 'https://via.placeholder.com/600x400?text=Event')}" alt="${escapeAttr(event.title)}">
+        <span class="sts-card-badge ${eventCategories[event.category] || 'default'}">${escapeHtml(event.category)}</span>
       </div>
       <div class="sts-upcoming-event-intro">
         <div class="sts-upcomming-wrapper">
@@ -225,7 +229,7 @@ function renderAllEvents(eventsList) {
             <i class="fa-regular fa-calendar"></i>
             <span>${formatDate(event.date)}</span>
             <span class="ev-sep">•</span>
-            <span>${event.time}</span>
+            <span>${escapeHtml(event.time)}</span>
           </div>
           <div class="ev-meta">
             <i class="fa-solid fa-location-dot"></i>
@@ -234,10 +238,10 @@ function renderAllEvents(eventsList) {
           <p class="ev-desc">${escapeHtml(event.description || 'No description available')}</p>
           <div class="ev-meta">
             <i class="fa-solid fa-users"></i>
-            <span>${event.confirmed_registrations || 0} / ${event.capacity} registered</span>
+            <span>${Number(event.confirmed_registrations || 0)} / ${Number(event.capacity || 0)} registered</span>
           </div>
         </div>
-        <button class="btn-register" onclick="registerForEvent(${event.event_id}, this)">Register Now</button>
+        <button class="btn-register" onclick="registerForEvent(${Number(event.event_id)}, this)">Register Now</button>
       </div>
     </div>
   `).join('');
@@ -263,19 +267,19 @@ function renderRegisteredEvents(registrationsList) {
   container.innerHTML = registrationsList.map(reg => `
     <div class="register-card">
       <div class="register-card-img">
-        <img src="${reg.image_url || 'https://via.placeholder.com/400x300?text=Event'}" alt="${reg.title}">
+        <img src="${safeImageSrc(reg.image_url, 'https://via.placeholder.com/400x300?text=Event')}" alt="${escapeAttr(reg.title)}">
       </div>
       <div class="register-card-intro">
         <span><span>${escapeHtml(reg.title)}</span></span>
         <span><i class="fa-regular fa-calendar"></i><span>${formatDate(reg.date)}</span></span>
-        <span><i class="fa-regular fa-clock"></i><span>${reg.time}</span></span>
+        <span><i class="fa-regular fa-clock"></i><span>${escapeHtml(reg.time)}</span></span>
         <span><i class="fa-solid fa-location-dot"></i><span>${escapeHtml(reg.venue)}</span></span>
         <span><i class="fa-regular fa-file-lines"></i><span>${escapeHtml(reg.description || 'No description')}</span></span>
-        <span><i class="fa-solid fa-tag"></i><span>Status: <strong class="status-${reg.status}">${reg.status}</strong></span></span>
+        <span><i class="fa-solid fa-tag"></i><span>Status: <strong class="status-${safeClass(reg.status)}">${escapeHtml(reg.status)}</strong></span></span>
       </div>
       <div class="register-card-button">
-        <button class="register-card-button-1" onclick="viewEventDetails(${reg.event_id})">View Details</button>
-        ${reg.status === 'confirmed' ? `<button class="register-card-button-2" onclick="cancelRegistration(${reg.registration_id})">Cancel Registration</button>` : ''}
+        <button class="register-card-button-1" onclick="viewEventDetails(${Number(reg.event_id)})">View Details</button>
+        ${reg.status === 'confirmed' ? `<button class="register-card-button-2" onclick="cancelRegistration(${Number(reg.registration_id)})">Cancel Registration</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -406,6 +410,23 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function escapeAttr(text) {
+  return escapeHtml(text).replace(/"/g, '&quot;');
+}
+
+function safeClass(text) {
+  return String(text || '').toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+}
+
+function safeImageSrc(src, fallback) {
+  const value = String(src || '').trim();
+  if (!value) return fallback;
+  if (/^https?:\/\//i.test(value) || /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value)) {
+    return escapeAttr(value);
+  }
+  return fallback;
+}
+
 function initSearch() {
   const searchInput = document.querySelector('.header-search input');
   if (!searchInput) return;
@@ -451,6 +472,7 @@ async function checkLoginStatus() {
     }
     
     currentUser = data.user;
+    csrfToken = data.csrf_token || '';
     return true;
   } catch (error) {
     console.error('Session check error:', error);
@@ -462,13 +484,9 @@ async function checkLoginStatus() {
 // Logout function
 async function logout() {
   try {
-    const response = await fetch(API_BASE + 'auth.php', {
-      method: 'POST',
-      body: new URLSearchParams({ action: 'logout' })
-    });
-    const data = await response.json();
+    const data = await apiCall('auth.php', { action: 'logout' });
     
-    if (data.success) {
+    if (data && data.success) {
       window.location.href = 'login.html';
     }
   } catch (error) {

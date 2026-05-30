@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/security.php';
 
 // Check authentication
 if (!isset($_SESSION['role'])) {
@@ -105,6 +106,9 @@ function getEvent() {
 //  CREATE EVENT (Admin only)
 // ══════════════════════════════════════════════════════════
 function createEvent() {
+    require_post();
+    require_csrf();
+
     if ($_SESSION['role'] !== 'admin') {
         respond(false, 'Only admins can create events');
     }
@@ -142,6 +146,9 @@ function createEvent() {
 //  UPDATE EVENT (Admin only)
 // ══════════════════════════════════════════════════════════
 function updateEvent() {
+    require_post();
+    require_csrf();
+
     if ($_SESSION['role'] !== 'admin') {
         respond(false, 'Only admins can update events');
     }
@@ -178,6 +185,9 @@ function updateEvent() {
 //  DELETE EVENT (Admin only)
 // ══════════════════════════════════════════════════════════
 function deleteEvent() {
+    require_post();
+    require_csrf();
+
     if ($_SESSION['role'] !== 'admin') {
         respond(false, 'Only admins can delete events');
     }

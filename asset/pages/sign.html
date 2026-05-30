@@ -55,7 +55,7 @@
             <p class="section-title"><i class="fa fa-id-badge"></i> Select Role</p>
             <div class="role-switch">
                 <button type="button" class="active" onclick="setRole('user', this)">Student</button>
-                <button type="button" onclick="setRole('admin', this)">Admin</button>
+                <button type="button" disabled title="Admin accounts must be created by an existing admin">Admin</button>
             </div>
         </div>
 
@@ -160,6 +160,18 @@
 </div>
 
 <script>
+    let csrfToken = '';
+
+    async function loadCsrfToken() {
+        try {
+            const res = await fetch('../php/auth.php?action=csrf');
+            const json = await res.json();
+            csrfToken = json.csrf_token || '';
+        } catch (error) {
+            csrfToken = '';
+        }
+    }
+
     function setRole(role, btn) {
         document.getElementById('roleHidden').value = role;
         document.querySelectorAll('.role-switch button').forEach(b => b.classList.remove('active'));
@@ -226,6 +238,7 @@
 
         try {
             const data = new FormData(this);
+            data.append('csrf_token', csrfToken);
             const res  = await fetch('../php/auth.php', { method: 'POST', body: data });
             const json = await res.json();
 
@@ -241,6 +254,8 @@
             setLoading(false);
         }
     });
+
+    loadCsrfToken();
 </script>
 
 </body>
